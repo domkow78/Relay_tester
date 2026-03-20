@@ -1,11 +1,13 @@
 #ifndef RELAY_CONTROL_H
 #define RELAY_CONTROL_H
 
+
 #include <Arduino.h>
 #include "config.h"
 
 extern const uint8_t relay_on[CHANNEL_COUNT];
 extern const uint8_t relay_dir[CHANNEL_COUNT];
+extern bool relayState[CHANNEL_COUNT];
 
 void initRelays();
 void setRelayOn(uint8_t ch);

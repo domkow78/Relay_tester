@@ -1,10 +1,14 @@
 #include "relay_control.h"
 
 const uint8_t relay_on[CHANNEL_COUNT] =
-{22,23,24,25,26,27,28,29,30,31};
+{19,17,15,23,3,5,7,9,11,13};
+// zamiana 1 -> 23
 
 const uint8_t relay_dir[CHANNEL_COUNT] =
-{32,33,34,35,36,37,38,39,40,41};
+{18,16,14,22,2,4,6,8,10,12};
+// zamiana 0 --> 22
+
+bool relayState[CHANNEL_COUNT] = {0};
 
 void initRelays()
 {
@@ -32,12 +36,14 @@ void initRelays()
 
 void setRelayOn(uint8_t ch)
 {
-    digitalWrite(relay_on[ch],HIGH);
+    digitalWrite(relay_on[ch], HIGH);
+    relayState[ch] = true;
 }
 
 void setRelayOff(uint8_t ch)
 {
-    digitalWrite(relay_on[ch],LOW);
+    digitalWrite(relay_on[ch], LOW);
+    relayState[ch] = false;
 }
 
 void allRelaysOn()
