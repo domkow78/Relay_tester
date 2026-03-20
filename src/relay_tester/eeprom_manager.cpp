@@ -38,13 +38,16 @@ void loadConfigEEPROM()
 
     uint16_t c = crc16((uint8_t*)&config, sizeof(TestConfig)-2);
 
-    if(c != config.crc)
+    if(c != config.crc || config.step_delay == 0)
     {
-        config.step_delay = DEFAULT_STEP_DELAY;
-        config.target_cycles = DEFAULT_TARGET_CYCLES;
-        config.measure_interval = DEFAULT_MEASURE_INTERVAL;
-        config.save_interval = DEFAULT_SAVE_INTERVAL;
+    config.step_delay = DEFAULT_STEP_DELAY;
+    config.target_cycles = DEFAULT_TARGET_CYCLES;
+    config.measure_interval = DEFAULT_MEASURE_INTERVAL;
+    config.save_interval = DEFAULT_SAVE_INTERVAL;
+
+    saveConfigEEPROM();
     }
+    
 }
 
 void saveConfigEEPROM()

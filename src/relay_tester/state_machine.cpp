@@ -10,15 +10,26 @@ static uint8_t stepIndex = 0;
 
 void initStateMachine()
 {
+    if(config.measure_interval == 0)
+        config.measure_interval = DEFAULT_MEASURE_INTERVAL;
+
+    if(config.target_cycles == 0)
+        config.target_cycles = DEFAULT_TARGET_CYCLES;
+
     if(state.cycle_counter >= config.target_cycles)
+    {
         currentState = STATE_FINISHED;
-
-    else if(state.cycle_counter % config.measure_interval == 0 &&
+    }
+    else if(config.measure_interval != 0 &&
+            state.cycle_counter % config.measure_interval == 0 &&
             state.cycle_counter != 0)
+    {
         currentState = STATE_WAIT_MEASUREMENT;
-
+    }
     else
+    {
         currentState = STATE_RUNNING;
+    }
 }
 
 void updateStateMachine()
