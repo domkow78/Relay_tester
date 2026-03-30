@@ -3,112 +3,109 @@
 #include <EEPROM.h>
 
 TestConfig config;
-TestState state;
+TestState  state;
 
-#define EEPROM_CONFIG_A 0
-#define EEPROM_CONFIG_B 32
-#define EEPROM_STATE_A 64
-#define EEPROM_STATE_B 128
+// ── Mapa EEPROM ──────────────────────────────────────────────────────────────
+//  [0 … 31]   – 1 slot konfiguracji (TestConfig, rzadko zapisywany)
+//  [32 … 4095] – ring buffer stanów (271 slotów × 15 bajtów)
+//
+//  ATmega2560: 4096 bajtów EEPROM, 100 000 zapisów/komórkę
+//  271 slotów × 100 000 = 27 100 000 zapisów przed zużyciem
 
-static bool stateSlot = false;
+#define EEPROM_TOTAL        4096u
+#define EEPROM_CONFIG_ADDR  0u
+#define EEPROM_STATE_START  32u
+#define STATE_SLOT_SIZE     ((uint16_t)sizeof(TestState))
+#define STATE_SLOT_COUNT    ((uint16_t)((EEPROM_TOTAL - EEPROM_STATE_START) / STATE_SLOT_SIZE))
 
+static uint16_t currentSlot = 0;
+
+// ── CRC-16 (Modbus) ──────────────────────────────────────────────────────────
 static uint16_t crc16(const uint8_t *data, uint16_t len)
 {
     uint16_t crc = 0xFFFF;
 
-    for(uint16_t i=0;i<len;i++)
+    for(uint16_t i = 0; i < len; i++)
     {
         crc ^= data[i];
-
-        for(uint8_t j=0;j<8;j++)
-        {
-            if(crc & 1)
-                crc = (crc >> 1) ^ 0xA001;
-            else
-                crc >>= 1;
-        }
+        for(uint8_t j = 0; j < 8; j++)
+            crc = (crc & 1) ? (crc >> 1) ^ 0xA001 : crc >> 1;
     }
 
     return crc;
 }
 
+// ── Config ───────────────────────────────────────────────────────────────────
 void loadConfigEEPROM()
 {
-    EEPROM.get(EEPROM_CONFIG_A, config);
+    EEPROM.get(EEPROM_CONFIG_ADDR, config);
 
-    uint16_t c = crc16((uint8_t*)&config, sizeof(TestConfig)-2);
+    uint16_t c = crc16((uint8_t*)&config, sizeof(TestConfig) - 2);
 
     if(c != config.crc || config.step_delay == 0)
     {
-    config.step_delay = DEFAULT_STEP_DELAY;
-    config.target_cycles = DEFAULT_TARGET_CYCLES;
-    config.measure_interval = DEFAULT_MEASURE_INTERVAL;
-    config.save_interval = DEFAULT_SAVE_INTERVAL;
+        config.step_delay       = DEFAULT_STEP_DELAY;
+        config.target_cycles    = DEFAULT_TARGET_CYCLES;
+        config.measure_interval = DEFAULT_MEASURE_INTERVAL;
+        config.save_interval    = DEFAULT_SAVE_INTERVAL;
 
-    saveConfigEEPROM();
+        saveConfigEEPROM();
     }
-    
 }
 
 void saveConfigEEPROM()
 {
-    config.crc = crc16((uint8_t*)&config,sizeof(TestConfig)-2);
-
-    EEPROM.put(EEPROM_CONFIG_A,config);
+    config.crc = crc16((uint8_t*)&config, sizeof(TestConfig) - 2);
+    EEPROM.put(EEPROM_CONFIG_ADDR, config);
 }
+
+// ── State – ring buffer wear leveling ────────────────────────────────────────
+//
+//  Zapis: każdy kolejny saveStateEEPROM() trafia do następnego slotu w pierścieniu.
+//  Odczyt: skanowanie wszystkich slotów, wybór tego z najwyższym cycle_counter
+//          i poprawnym CRC. Następny zapis idzie do slotu po znalezionym.
 
 void loadStateEEPROM()
 {
-    TestState sa, sb;
-    EEPROM.get(EEPROM_STATE_A, sa);
-    EEPROM.get(EEPROM_STATE_B, sb);
+    TestState best;
+    bool      found    = false;
+    uint16_t  bestSlot = 0;
 
-    bool okA = (crc16((uint8_t*)&sa, sizeof(TestState)-2) == sa.crc);
-    bool okB = (crc16((uint8_t*)&sb, sizeof(TestState)-2) == sb.crc);
-
-    if(okA && okB)
+    for(uint16_t i = 0; i < STATE_SLOT_COUNT; i++)
     {
-        // obydwa poprawne – wybierz z wyższym cycle_counter (nowszy zapis)
-        if(sb.cycle_counter > sa.cycle_counter)
+        TestState s;
+        EEPROM.get(EEPROM_STATE_START + i * STATE_SLOT_SIZE, s);
+
+        if(crc16((uint8_t*)&s, sizeof(TestState) - 2) == s.crc)
         {
-            state = sb;
-            stateSlot = true;   // ostatni zapis był do B → następny do A
-        }
-        else
-        {
-            state = sa;
-            stateSlot = false;  // ostatni zapis był do A → następny do B
+            if(!found || s.cycle_counter > best.cycle_counter)
+            {
+                best     = s;
+                bestSlot = i;
+                found    = true;
+            }
         }
     }
-    else if(okA)
+
+    if(found)
     {
-        state = sa;
-        stateSlot = false;  // ostatni zapis był do A → następny do B
-    }
-    else if(okB)
-    {
-        state = sb;
-        stateSlot = true;   // ostatni zapis był do B → następny do A
+        state       = best;
+        currentSlot = (bestSlot + 1) % STATE_SLOT_COUNT;  // następny wolny slot
     }
     else
     {
         // żaden slot niepoprawny – wartości domyślne
-        state.cycle_counter = 0;
-        state.runtime_seconds = 0;
+        state.cycle_counter      = 0;
+        state.runtime_seconds    = 0;
         state.power_fail_counter = 0;
-        state.direction = DIR_LEFT;
-        stateSlot = false;
+        state.direction          = DIR_LEFT;
+        currentSlot              = 0;
     }
 }
 
 void saveStateEEPROM()
 {
-    state.crc = crc16((uint8_t*)&state,sizeof(TestState)-2);
-
-    if(stateSlot)
-        EEPROM.put(EEPROM_STATE_A,state);
-    else
-        EEPROM.put(EEPROM_STATE_B,state);
-
-    stateSlot = !stateSlot;
+    state.crc = crc16((uint8_t*)&state, sizeof(TestState) - 2);
+    EEPROM.put(EEPROM_STATE_START + currentSlot * STATE_SLOT_SIZE, state);
+    currentSlot = (currentSlot + 1) % STATE_SLOT_COUNT;
 }

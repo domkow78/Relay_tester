@@ -140,7 +140,7 @@ SAVE_INTERVAL
 Mechanizmy bezpieczeństwa:
 
 CRC (CONFIG i STATE)
-double buffer (tylko STATE)
+ring buffer wear leveling (STATE – 271 slotów, adresy 32–4095)
 
 ---
 

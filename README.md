@@ -22,7 +22,7 @@ Sterownik oparty jest na **Arduino Mega 2560** i działa autonomicznie – po za
 * punkty pomiarowe co określoną liczbę cykli
 * tryb TEST do ręcznego pomiaru rezystancji styków
 * automatyczne wznowienie testu po zaniku zasilania
-* zapis stanu do EEPROM (CRC + double buffer)
+* zapis stanu do EEPROM (CRC + ring buffer wear leveling, 271 slotów)
 * interfejs CLI przez UART
 * wyświetlacz LCD 16x2 (I2C)
 * watchdog sprzętowy (AVR WDT, timeout 2 s)
@@ -186,7 +186,14 @@ chyba że osiągnięto punkt pomiarowy.
 Zastosowano:
 
 CRC (CONFIG i STATE)
-double buffer (tylko STATE)
+ring buffer wear leveling (STATE – 271 slotów)
+
+Mapa EEPROM:
+
+| Adresy | Zawartość |
+|--------|----------|
+| 0 – 31 | TestConfig (1 slot) |
+| 32 – 4095 | TestState ring buffer (271 slotów × 15 B) |
 
 Struktury:
 
@@ -312,14 +319,20 @@ Watchdog jest wyłączany na czas `setup()` (inicjalizacja EEPROM, LCD), a nast�
 
 AVR ATmega2560 gwarantuje 100 000 zapisów na komórkę.
 
-Interwały zapisu dobrane z marginesem:
+Zastosowany mechanizm: **ring buffer wear leveling** – każdy zapis trafia do następnego slotu w pierścieniu. Przy starcie skanowane są wszystkie sloty; wybrany jest ten z najwyższym `cycle_counter` i poprawnym CRC.
 
-| Parametr | Wartość | Znaczenie |
-|---|---|---|
-| SAVE_INTERVAL | 100 cykli | zapis stanu po każdych 100 cyklach |
-| RUNTIME_SAVE_INTERVAL | 300 s | zapis runtime co 5 minut |
+| Parametr | Wartość |
+|---|---|
+| Liczba slotów STATE | 271 |
+| Zapisów przed zużyciem | 271 × 100 000 = **27 100 000** |
+| SAVE_INTERVAL | 100 cykli |
+| RUNTIME_SAVE_INTERVAL | 300 s |
 
-Przy teście 500 000 cykli liczba zapisów na slot EEPROM wynosi ~10 800, co pozwala na dziesiątki pełnych testów bez ryzyka zużycia pamięci.
+Przy teście 500 000 cykli liczba zapisów wynosi ~5 800, co oznacza ponad **4 600 pełnych testów** przed zużyciem.
+
+---
+
+# Emergency stop
 
 System posiada fizyczny **Emergency Stop**, który odcina zasilanie przekaźników.
 
