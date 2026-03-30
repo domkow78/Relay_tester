@@ -25,7 +25,7 @@ Sterownik oparty jest na **Arduino Mega 2560** i działa autonomicznie – po za
 * zapis stanu do EEPROM (CRC + double buffer)
 * interfejs CLI przez UART
 * wyświetlacz LCD 16x2 (I2C)
-* watchdog sprzętowy
+* watchdog sprzętowy *(planowany, nie zaimplementowany)*
 
 ---
 
@@ -243,7 +243,7 @@ Zwraca aktualny stan systemu.
 
 Przykład:
 
-STATE=2;CYCLES=123456;DIR=RIGHT;TARGET=100000;POWER_FAILS=2;RUNTIME_H=48;FW=1.0
+STATE=RUNNING;CYCLES=123456;DIR=RIGHT;TARGET=100000;POWER_FAILS=2;RUNTIME_H=48;FW=1.0
 
 ---
 

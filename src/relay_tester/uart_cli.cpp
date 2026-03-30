@@ -6,10 +6,29 @@
 
 static String cmd;
 
+static const char* stateToString(SystemState s)
+{
+    switch(s)
+    {
+        case STATE_INIT:             return "INIT";
+        case STATE_IDLE:             return "IDLE";
+        case STATE_RUNNING:          return "RUNNING";
+        case STATE_STEP_ON:          return "STEP_ON";
+        case STATE_STEP_OFF:         return "STEP_OFF";
+        case STATE_WAIT_DEAD_TIME:   return "WAIT_DEAD_TIME";
+        case STATE_CHANGE_DIRECTION: return "CHANGE_DIRECTION";
+        case STATE_WAIT_MEASUREMENT: return "WAIT_MEASUREMENT";
+        case STATE_TEST_MODE:        return "TEST_MODE";
+        case STATE_FINISHED:         return "FINISHED";
+        case STATE_ERROR:            return "ERROR";
+        default:                     return "UNKNOWN";
+    }
+}
+
 static void sendStatus()
 {
     Serial.print("STATE=");
-    Serial.print(currentState);
+    Serial.print(stateToString(currentState));
 
     Serial.print(";CYCLES=");
     Serial.print(state.cycle_counter);
@@ -128,7 +147,7 @@ static void processCommand(String c)
 
     else if(c == "HELP")
     {
-        Serial.println("PING STATUS CONFIG START PAUSE CONTINUE TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
+        Serial.println("PING STATUS CONFIG START STOP PAUSE CONTINUE RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
     }
 }
 

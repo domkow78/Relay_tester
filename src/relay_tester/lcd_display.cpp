@@ -3,10 +3,6 @@
 #include "eeprom_manager.h"
 #include <LiquidCrystal_I2C.h>
 
-#include "relay_control.h"
-#include "state_machine.h"
-#include <string.h>
-
 LiquidCrystal_I2C lcd(0x27,16,2);
 
 void initLCD()
@@ -15,54 +11,17 @@ void initLCD()
     lcd.backlight();
 }
 
-const char* getStateString(SystemState s)
-{
-    switch(s)
-    {
-        case STATE_INIT: return "INIT";
-        case STATE_IDLE: return "IDLE";
-        case STATE_RUNNING: return "RUN ";
-        case STATE_WAIT_MEASUREMENT: return "WAIT";
-        case STATE_TEST_MODE: return "TEST";
-        case STATE_FINISHED: return "END ";
-        default: return "ERR ";
-    }
-}
-
 void updateLCD()
 {
-    // LINIA 1
+    // LINIA 1: CYC:<licznik>
     lcd.setCursor(0,0);
     lcd.print("CYC:");
     lcd.print(state.cycle_counter);
-<<<<<<< HEAD
-    lcd.print("      ");
-=======
-    lcd.print("    ");  // wyczyść resztę
->>>>>>> 368e6bd (improved structure and bug removing)
+    lcd.print("      ");  // wyczyść resztę
 
-    // LINIA 2
+    // LINIA 2: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16
     lcd.setCursor(0,1);
 
-<<<<<<< HEAD
-    // 1. STATE (lewa strona)
-    const char* s = getStateString(currentState);
-    lcd.print(s);
-
-    // wyrównanie do 5 znaków
-    int len = strlen(s);
-    for(int i=len;i<5;i++)
-        lcd.print(" ");
-
-    // 2. spacja
-    lcd.print(" ");
-
-    // 3. wskaźniki przekaźników (10 szt)
-    for(int i=0;i<CHANNEL_COUNT;i++)
-    {
-        lcd.print(relayState[i] ? "1":"0");
-=======
-    // linia 2: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16
     const char* stateStr;
     switch(currentState)
     {
@@ -78,7 +37,6 @@ void updateLCD()
         case STATE_FINISHED:         stateStr = "END "; break;
         case STATE_ERROR:            stateStr = "ERR "; break;
         default:                     stateStr = "?   "; break;
->>>>>>> 368e6bd (improved structure and bug removing)
     }
 
     int8_t active = getActiveChannel();

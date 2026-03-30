@@ -49,13 +49,19 @@ void setRelayOff(uint8_t ch)
 void allRelaysOn()
 {
     for(int i=0;i<CHANNEL_COUNT;i++)
+    {
         digitalWrite(relay_on[i],HIGH);
+        relayState[i] = true;
+    }
 }
 
 void allRelaysOff()
 {
     for(int i=0;i<CHANNEL_COUNT;i++)
+    {
         digitalWrite(relay_on[i],LOW);
+        relayState[i] = false;
+    }
 }
 
 void setDirection(uint8_t dir)

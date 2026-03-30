@@ -102,9 +102,11 @@ Zmiana kierunku obrotów:
 
 LEFT ↔ RIGHT
 
-Po zmianie kierunku:
+Kolejność operacji:
 
 cycle_counter++
+zmiana kierunku (DIR_LEFT ↔ DIR_RIGHT)
+setDirection()
 
 System sprawdza:
 
@@ -202,9 +204,7 @@ FINISHED --> IDLE : RESET
 
 ```
 INIT
- ↓
-IDLE
- ↓ START
+ ↓ (default)
 RUNNING
  ↓
 STEP_ON  (wave: CH1→CH2→...→CH10, jeden kanał na raz)
@@ -214,6 +214,9 @@ WAIT_DEAD_TIME
 CHANGE_DIRECTION
  ↓
 RUNNING
+
+INIT → WAIT_MEASUREMENT  (jeśli cycle_counter % measure_interval == 0)
+INIT → FINISHED           (jeśli cycle_counter >= target_cycles)
 
 CHANGE_DIRECTION → WAIT_MEASUREMENT
 WAIT_MEASUREMENT → CONTINUE → RUNNING

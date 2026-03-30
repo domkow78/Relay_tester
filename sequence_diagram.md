@@ -65,10 +65,10 @@ RD->>MOTOR: channel_10 OFF
 
 Note over SM: wait DEAD_TIME
 
+SM->>SM: cycle_counter++
+
 SM->>RD: change_direction
 RD->>MOTOR: toggle LEFT/RIGHT
-
-SM->>SM: cycle_counter++
 
 SM->>SM: start next cycle
 ```

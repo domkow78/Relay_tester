@@ -155,22 +155,18 @@ Uruchom test:
 START
 ```
 
-Sekwencja działania powinna być następująca:
+Sekwencja działania powinna być następująca (wave – jeden kanał na raz):
 
 ```
 relay_1 ON
-relay_2 ON
-relay_3 ON
+relay_1 OFF / relay_2 ON
+relay_2 OFF / relay_3 ON
 ...
-relay_10 ON
-
-relay_1 OFF
-relay_2 OFF
-...
+relay_9 OFF / relay_10 ON
 relay_10 OFF
 ```
 
-Po zakończeniu cyklu zmienia się kierunek.
+Po wyłączeniu kanału 10 następuje dead time (100 ms), zmiana kierunku i zwiększenie licznika cykli.
 
 ---
 

@@ -135,6 +135,7 @@ Dodatkowo przechowuje konfigurację:
 STEP_DELAY
 TARGET_CYCLES
 MEASURE_INTERVAL
+SAVE_INTERVAL
 
 Mechanizmy bezpieczeństwa:
 
@@ -178,7 +179,7 @@ CYC:<cycle_counter>
 linia 2
 Format: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16 znaków
 
-Przyład:
+Przykład:
 ON   1000000000
 DEAD 0000000000
 MEAS 0000000000
@@ -206,6 +207,7 @@ flowchart TD
 CLI[UART CLI]
 
 SM[State Machine]
+RT[Runtime Counter]
 
 RELAY[Relay Driver]
 EEPROM[EEPROM Manager]
@@ -216,6 +218,9 @@ CLI --> SM
 SM --> RELAY
 SM --> EEPROM
 SM --> LCD
+
+RT --> EEPROM
+SM --> RT
 ```
 
 ---
