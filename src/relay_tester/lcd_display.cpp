@@ -1,6 +1,7 @@
 #include "lcd_display.h"
 #include "state_machine.h"
 #include "eeprom_manager.h"
+#include "config.h"
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27,16,2);
