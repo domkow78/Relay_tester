@@ -101,7 +101,7 @@ CONFIGURATION:
 STEP_DELAY=1000
 TARGET_CYCLES=100000
 MEASURE_INTERVAL=20000
-SAVE_INTERVAL=10
+SAVE_INTERVAL=100
 FW=1.0
 ```
 
@@ -112,7 +112,7 @@ Opis parametrów:
 | STEP_DELAY       | czas pomiędzy kolejnymi przekaźnikami    |
 | TARGET_CYCLES    | docelowa liczba cykli testu              |
 | MEASURE_INTERVAL | co ile cykli następuje przerwa na pomiar |
-| SAVE_INTERVAL    | co ile cykli zapis EEPROM                |
+| SAVE_INTERVAL    | co ile cykli zapis EEPROM (domyślnie 100) |
 
 ---
 

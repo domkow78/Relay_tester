@@ -116,7 +116,7 @@ Domyślne wartości:
 STEP_DELAY = 1000 ms
 TARGET_CYCLES = 100000
 MEASURE_INTERVAL = 20000
-SAVE_INTERVAL = 10
+SAVE_INTERVAL = 100
 
 Parametry można zmieniać przez UART.
 
@@ -255,7 +255,7 @@ CONFIGURATION:
 STEP_DELAY=1000
 TARGET_CYCLES=100000
 MEASURE_INTERVAL=20000
-SAVE_INTERVAL=10
+SAVE_INTERVAL=100
 FW=1.0
 
 ---
@@ -305,6 +305,21 @@ Timeout: **2 s**
 Jeśli główna pętla `loop()` nie wywoła `wdt_reset()` w ciągu 2 sekund, mikrokontroler zostaje automatycznie zrestartowany.
 
 Watchdog jest wyłączany na czas `setup()` (inicjalizacja EEPROM, LCD), a następnie włączany przed wejściem do `loop()`.
+
+---
+
+# Ochrona EEPROM
+
+AVR ATmega2560 gwarantuje 100 000 zapisów na komórkę.
+
+Interwały zapisu dobrane z marginesem:
+
+| Parametr | Wartość | Znaczenie |
+|---|---|---|
+| SAVE_INTERVAL | 100 cykli | zapis stanu po każdych 100 cyklach |
+| RUNTIME_SAVE_INTERVAL | 300 s | zapis runtime co 5 minut |
+
+Przy teście 500 000 cykli liczba zapisów na slot EEPROM wynosi ~10 800, co pozwala na dziesiątki pełnych testów bez ryzyka zużycia pamięci.
 
 System posiada fizyczny **Emergency Stop**, który odcina zasilanie przekaźników.
 
