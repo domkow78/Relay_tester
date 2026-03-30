@@ -7,6 +7,18 @@ SystemState currentState = STATE_INIT;
 
 static uint32_t stepTimer = 0;
 static uint8_t stepIndex = 0;
+static bool idleRelaysOff = false;
+static bool finishedRelaysOff = false;
+
+int8_t getActiveChannel()
+{
+    if(currentState == STATE_STEP_ON &&
+       stepIndex > 0 &&
+       stepIndex <= CHANNEL_COUNT)
+        return (int8_t)(stepIndex - 1);
+
+    return -1;
+}
 
 void initStateMachine()
 {
@@ -37,10 +49,32 @@ void updateStateMachine()
     switch(currentState)
     {
 
+        case STATE_IDLE:
+            // Stan bezczynności - wyłącz przekaźniki tylko raz
+            if(!idleRelaysOff)
+            {
+                allRelaysOff();
+                idleRelaysOff = true;
+            }
+            break;
+
+
+        case STATE_FINISHED:
+            // Test zakończony - wyłącz przekaźniki tylko raz
+            if(!finishedRelaysOff)
+            {
+                allRelaysOff();
+                finishedRelaysOff = true;
+            }
+            break;
+
+
         case STATE_RUNNING:
 
             stepIndex = 0;
             stepTimer = millis();
+            idleRelaysOff = false;
+            finishedRelaysOff = false;
             currentState = STATE_STEP_ON;
             break;
 
@@ -49,15 +83,21 @@ void updateStateMachine()
 
             if(millis() - stepTimer >= config.step_delay)
             {
-                setRelayOn(stepIndex);
+                // wyłącz poprzedni kanał (wave – tylko jeden ON na raz)
+                if(stepIndex > 0)
+                    setRelayOff(stepIndex - 1);
 
-                stepIndex++;
-                stepTimer = millis();
-
-                if(stepIndex >= CHANNEL_COUNT)
+                if(stepIndex < CHANNEL_COUNT)
                 {
-                    stepIndex = 0;
-                    currentState = STATE_STEP_OFF;
+                    setRelayOn(stepIndex);
+                    stepIndex++;
+                    stepTimer = millis();
+                }
+                else
+                {
+                    // ostatni kanał wyłączony, przejdź do dead time
+                    stepTimer = millis();
+                    currentState = STATE_WAIT_DEAD_TIME;
                 }
             }
 
@@ -65,16 +105,16 @@ void updateStateMachine()
 
 
         case STATE_STEP_OFF:
+            // nieużywany – sekwencja wave obsługiwana w STATE_STEP_ON
+            currentState = STATE_WAIT_DEAD_TIME;
+            break;
 
-            if(millis() - stepTimer >= config.step_delay)
+
+        case STATE_WAIT_DEAD_TIME:
+
+            if(millis() - stepTimer >= DEAD_TIME)
             {
-                setRelayOff(stepIndex);
-
-                stepIndex++;
-                stepTimer = millis();
-
-                if(stepIndex >= CHANNEL_COUNT)
-                    currentState = STATE_CHANGE_DIRECTION;
+                currentState = STATE_CHANGE_DIRECTION;
             }
 
             break;

@@ -36,7 +36,9 @@ Inicjalizacja systemu:
 
 Po inicjalizacji system przechodzi do:
 
-STATE_IDLE lub STATE_RUNNING (jeśli test był w trakcie).
+STATE_RUNNING (domyślnie)
+STATE_WAIT_MEASUREMENT (jeśli cycle_counter % measure_interval == 0 i cycle_counter > 0)
+STATE_FINISHED (jeśli cycle_counter >= target_cycles)
 
 ---
 
@@ -65,14 +67,16 @@ System wykonuje kolejne cykle przełączania przekaźników.
 
 ## STATE_STEP_ON
 
-Sekwencyjne załączanie kanałów.
+Sekwencja wave – tylko jeden kanał załączony na raz.
 
-relay_1_on
-relay_2_on
+Krok 0:   relay_1_on
+Krok 1:   relay_1_off / relay_2_on
+Krok 2:   relay_2_off / relay_3_on
 ...
-relay_10_on
+Krok 9:   relay_9_off / relay_10_on
+Krok 10:  relay_10_off → STATE_WAIT_DEAD_TIME
 
-Każde przełączenie następuje po:
+Każde przejście następuje po:
 
 STEP_DELAY
 
@@ -80,12 +84,7 @@ STEP_DELAY
 
 ## STATE_STEP_OFF
 
-Sekwencyjne wyłączanie kanałów.
-
-relay_1_off
-relay_2_off
-...
-relay_10_off
+Nieużywany. Sekwencja wave obsługiwana jest w całości przez STATE_STEP_ON.
 
 ---
 
@@ -141,7 +140,7 @@ Wyjście:
 
 RELEASE
 
-Powrót do poprzedniego stanu.
+Powrót do STATE_IDLE.
 
 ---
 
@@ -171,7 +170,9 @@ stateDiagram-v2
 
 [*] --> INIT
 
-INIT --> IDLE
+INIT --> RUNNING : default
+INIT --> WAIT_MEASUREMENT : at measure point
+INIT --> FINISHED : target reached
 
 IDLE --> RUNNING : START
 IDLE --> TEST_MODE : TEST
@@ -179,8 +180,7 @@ IDLE --> TEST_MODE : TEST
 TEST_MODE --> IDLE : RELEASE
 
 RUNNING --> STEP_ON
-STEP_ON --> STEP_OFF
-STEP_OFF --> WAIT_DEAD_TIME
+STEP_ON --> WAIT_DEAD_TIME
 WAIT_DEAD_TIME --> CHANGE_DIRECTION
 
 CHANGE_DIRECTION --> RUNNING
@@ -207,9 +207,7 @@ IDLE
  ↓ START
 RUNNING
  ↓
-STEP_ON
- ↓
-STEP_OFF
+STEP_ON  (wave: CH1→CH2→...→CH10, jeden kanał na raz)
  ↓
 WAIT_DEAD_TIME
  ↓
@@ -222,7 +220,7 @@ WAIT_MEASUREMENT → CONTINUE → RUNNING
 
 IDLE → TEST → TEST_MODE → RELEASE → IDLE
 
-WAIT_MEASUREMENT → TEST → TEST_MODE → RELEASE → WAIT_MEASUREMENT
+WAIT_MEASUREMENT → TEST → TEST_MODE → RELEASE → IDLE
 
 RUNNING → TARGET_CYCLES → FINISHED → RESET → IDLE
 ```

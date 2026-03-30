@@ -67,13 +67,36 @@ static void processCommand(String c)
         currentState = STATE_RUNNING;
 
     else if(c == "PAUSE")
+    {
+        allRelaysOff();
         currentState = STATE_IDLE;
+    }
 
     else if(c == "CONTINUE")
         currentState = STATE_RUNNING;
 
+    else if(c == "STOP")
+    {
+        allRelaysOff();
+        currentState = STATE_IDLE;
+    }
+
+    else if(c == "RESET")
+    {
+        allRelaysOff();
+        state.cycle_counter = 0;
+        state.runtime_seconds = 0;
+        state.power_fail_counter = 0;
+        state.direction = DIR_LEFT;
+        setDirection(DIR_LEFT);
+        saveStateEEPROM();
+        currentState = STATE_IDLE;
+        Serial.println("SYSTEM RESET");
+    }
+
     else if(c == "TEST")
     {
+        setDirection(DIR_LEFT);  // relay_dir → LOW (OFF) przed włączeniem
         allRelaysOn();
         currentState = STATE_TEST_MODE;
     }
@@ -81,6 +104,7 @@ static void processCommand(String c)
     else if(c == "RELEASE")
     {
         allRelaysOff();
+        setDirection(state.direction);  // przywróć kierunek
         currentState = STATE_IDLE;
     }
 

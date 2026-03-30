@@ -9,7 +9,9 @@ void updateRuntime()
 {
     if(currentState == STATE_RUNNING ||
        currentState == STATE_STEP_ON ||
-       currentState == STATE_STEP_OFF)
+       currentState == STATE_STEP_OFF ||
+       currentState == STATE_WAIT_DEAD_TIME ||
+       currentState == STATE_CHANGE_DIRECTION)
     {
         if(millis() - lastTick >= 1000)
         {

@@ -103,9 +103,11 @@ Moduł odpowiedzialny za sterowanie przekaźnikami.
 
 Funkcje:
 
-* relayOn(channel)
-* relayOff(channel)
-* setDirection(direction)
+* setRelayOn(ch)
+* setRelayOff(ch)
+* allRelaysOn()
+* allRelaysOff()
+* setDirection(dir)
 
 Zawiera również:
 
@@ -136,8 +138,8 @@ MEASURE_INTERVAL
 
 Mechanizmy bezpieczeństwa:
 
-CRC
-double buffer
+CRC (CONFIG i STATE)
+double buffer (tylko STATE)
 
 ---
 
@@ -171,18 +173,26 @@ Obsługa wyświetlacza LCD 16x2.
 Wyświetlane informacje:
 
 linia 1
-CYC:<cycle_counter> DIR:<L/R>
+CYC:<cycle_counter>
 
 linia 2
-STATE:<state>
+Format: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16 znaków
+
+Przyład:
+ON   1000000000
+DEAD 0000000000
+MEAS 0000000000
+
+'1' oznacza aktualnie załączony kanał (tylko w STATE_STEP_ON).
+Poza STATE_STEP_ON wzorzec to '0000000000'.
 
 ---
 
 # Watchdog
 
-Watchdog chroni system przed zawieszeniem firmware.
+Watchdog sprzętowy nie jest aktualnie zaimplementowany w firmware.
 
-Jeżeli główna pętla programu przestanie działać poprawnie, system zostaje automatycznie zrestartowany.
+Planowane zabezpieczenie przed zawieszeniem głównej pętli programu.
 
 ---
 
@@ -215,15 +225,16 @@ SM --> LCD
 Proponowana organizacja kodu:
 
 ```
-firmware/
+src/relay_tester/
 │
 ├── relay_tester.ino
+├── config.h
 │
 ├── state_machine.cpp
 ├── state_machine.h
 │
-├── relay_driver.cpp
-├── relay_driver.h
+├── relay_control.cpp
+├── relay_control.h
 │
 ├── eeprom_manager.cpp
 ├── eeprom_manager.h
@@ -231,8 +242,11 @@ firmware/
 ├── uart_cli.cpp
 ├── uart_cli.h
 │
-├── lcd_ui.cpp
-└── lcd_ui.h
+├── lcd_display.cpp
+├── lcd_display.h
+│
+├── runtime_counter.cpp
+└── runtime_counter.h
 ```
 
 ---
@@ -247,9 +261,8 @@ Schemat działania:
 
 1. odczyt UART
 2. aktualizacja maszyny stanów
-3. aktualizacja LCD
-4. zapis EEPROM (jeśli wymagany)
-5. reset watchdog
+3. aktualizacja runtime counter
+4. aktualizacja LCD
 
 ---
 

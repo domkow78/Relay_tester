@@ -61,34 +61,25 @@ Razem:
 
 # Zasada działania
 
-Jeden cykl testu składa się z dwóch faz.
+Jeden cykl testu to sekwencja **wave** – w danym momencie załączony jest tylko jeden kanał.
 
-## Faza załączania
+## Sekwencja wave
 
-Kanały włączane są kolejno:
+Kanały przełączane są kolejno:
 
 relay_1_on
-relay_2_on
-relay_3_on
+(wait STEP_DELAY)
+relay_1_off / relay_2_on
+(wait STEP_DELAY)
+relay_2_off / relay_3_on
 ...
-relay_10_on
-
-Każde przełączenie następuje co:
-
-STEP_DELAY
-
-## Faza wyłączania
-
-Po załączeniu wszystkich kanałów następuje ich sekwencyjne wyłączenie:
-
-relay_1_off
-relay_2_off
-...
+relay_9_off / relay_10_on
+(wait STEP_DELAY)
 relay_10_off
 
-Każdy kanał pracuje przez identyczny czas.
+Każde przejście następuje co STEP_DELAY (domyślnie 1000 ms).
 
-Po wyłączeniu ostatniego przekaźnika następuje zmiana kierunku.
+Po wyłączeniu kanału 10 następuje dead time i zmiana kierunku.
 
 LEFT → RIGHT → LEFT → RIGHT
 
@@ -122,8 +113,8 @@ relay_on_off == OFF
 
 Domyślne wartości:
 
-STEP_DELAY = 2000 ms
-TARGET_CYCLES = 500000
+STEP_DELAY = 1000 ms
+TARGET_CYCLES = 100000
 MEASURE_INTERVAL = 20000
 SAVE_INTERVAL = 10
 
@@ -194,8 +185,8 @@ chyba że osiągnięto punkt pomiarowy.
 
 Zastosowano:
 
-CRC
-double buffer
+CRC (CONFIG i STATE)
+double buffer (tylko STATE)
 
 Struktury:
 
@@ -252,7 +243,7 @@ Zwraca aktualny stan systemu.
 
 Przykład:
 
-STATE=RUNNING;CYCLES=123456;DIR=RIGHT;TARGET=500000;NEXT_STOP=140000;POWER_FAILS=2;RUNTIME_H=48;FW=1.0
+STATE=2;CYCLES=123456;DIR=RIGHT;TARGET=100000;POWER_FAILS=2;RUNTIME_H=48;FW=1.0
 
 ---
 
@@ -261,11 +252,10 @@ STATE=RUNNING;CYCLES=123456;DIR=RIGHT;TARGET=500000;NEXT_STOP=140000;POWER_FAILS
 Wyświetla aktualną konfigurację systemu.
 
 CONFIGURATION:
-STEP_DELAY=2000
-TARGET_CYCLES=500000
+STEP_DELAY=1000
+TARGET_CYCLES=100000
 MEASURE_INTERVAL=20000
 SAVE_INTERVAL=10
-RUNTIME_H=48
 FW=1.0
 
 ---
@@ -275,16 +265,40 @@ FW=1.0
 LCD pokazuje podstawowe informacje:
 
 linia 1
-CYC:123456 DIR:L
+CYC:123456
 
 linia 2
-STATE:RUN
+Format: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16 znaków
+
+ON   1000000000    ← STATE_STEP_ON, kanał 1 załączony
+ON   0100000000    ← STATE_STEP_ON, kanał 2 załączony
+DEAD 0000000000    ← STATE_WAIT_DEAD_TIME
+DIR  0000000000    ← STATE_CHANGE_DIRECTION
+MEAS 0000000000    ← STATE_WAIT_MEASUREMENT
+IDLE 0000000000    ← STATE_IDLE
+END  0000000000    ← STATE_FINISHED
+
+Skróty stanów:
+
+| Stan                    | Skrót |
+|-------------------------|-------|
+| STATE_INIT              | INIT  |
+| STATE_IDLE              | IDLE  |
+| STATE_RUNNING           | RUN   |
+| STATE_STEP_ON           | ON    |
+| STATE_STEP_OFF          | OFF   |
+| STATE_WAIT_DEAD_TIME    | DEAD  |
+| STATE_CHANGE_DIRECTION  | DIR   |
+| STATE_WAIT_MEASUREMENT  | MEAS  |
+| STATE_TEST_MODE         | TEST  |
+| STATE_FINISHED          | END   |
+| STATE_ERROR             | ERR   |
 
 ---
 
 # Watchdog
 
-Firmware wykorzystuje watchdog aby zabezpieczyć system przed zawieszeniem podczas wielodniowych testów.
+Watchdog sprzętowy nie jest aktualnie zaimplementowany w firmware.
 
 ---
 
@@ -298,13 +312,13 @@ System posiada fizyczny **Emergency Stop**, który odcina zasilanie przekaźnik�
 
 Przy domyślnych ustawieniach:
 
-STEP_DELAY = 2 s
+STEP_DELAY = 1 s
 
-czas jednego cyklu ≈ 40 s
+czas jednego cyklu ≈ 11 s
 
-100 000 cykli ≈ 46 dni
-200 000 cykli ≈ 92 dni
-500 000 cykli ≈ 231 dni
+100 000 cykli ≈ 13 dni
+200 000 cykli ≈ 26 dni
+500 000 cykli ≈ 64 dni
 
 ---
 

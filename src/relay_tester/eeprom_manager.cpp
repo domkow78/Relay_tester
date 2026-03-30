@@ -59,16 +59,45 @@ void saveConfigEEPROM()
 
 void loadStateEEPROM()
 {
-    EEPROM.get(EEPROM_STATE_A,state);
+    TestState sa, sb;
+    EEPROM.get(EEPROM_STATE_A, sa);
+    EEPROM.get(EEPROM_STATE_B, sb);
 
-    uint16_t c = crc16((uint8_t*)&state,sizeof(TestState)-2);
+    bool okA = (crc16((uint8_t*)&sa, sizeof(TestState)-2) == sa.crc);
+    bool okB = (crc16((uint8_t*)&sb, sizeof(TestState)-2) == sb.crc);
 
-    if(c != state.crc)
+    if(okA && okB)
     {
+        // obydwa poprawne – wybierz z wyższym cycle_counter (nowszy zapis)
+        if(sb.cycle_counter > sa.cycle_counter)
+        {
+            state = sb;
+            stateSlot = true;   // ostatni zapis był do B → następny do A
+        }
+        else
+        {
+            state = sa;
+            stateSlot = false;  // ostatni zapis był do A → następny do B
+        }
+    }
+    else if(okA)
+    {
+        state = sa;
+        stateSlot = false;  // ostatni zapis był do A → następny do B
+    }
+    else if(okB)
+    {
+        state = sb;
+        stateSlot = true;   // ostatni zapis był do B → następny do A
+    }
+    else
+    {
+        // żaden slot niepoprawny – wartości domyślne
         state.cycle_counter = 0;
         state.runtime_seconds = 0;
         state.power_fail_counter = 0;
         state.direction = DIR_LEFT;
+        stateSlot = false;
     }
 }
 

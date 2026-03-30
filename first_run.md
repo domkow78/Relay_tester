@@ -69,7 +69,7 @@ STATUS
 Przykładowa odpowiedź:
 
 ```
-STATE=RUNNING;CYCLES=0;DIR=LEFT;TARGET=500000;POWER_FAILS=1;RUNTIME_H=0;FW=1.0
+STATE=RUNNING;CYCLES=0;DIR=LEFT;TARGET=100000;POWER_FAILS=1;RUNTIME_H=0;FW=1.0
 ```
 
 Opis pól:
@@ -98,8 +98,8 @@ Odpowiedź powinna wyglądać np.:
 
 ```
 CONFIGURATION:
-STEP_DELAY=2000
-TARGET_CYCLES=500000
+STEP_DELAY=1000
+TARGET_CYCLES=100000
 MEASURE_INTERVAL=20000
 SAVE_INTERVAL=10
 FW=1.0
@@ -196,14 +196,16 @@ Wyświetlacz LCD powinien pokazywać np.:
 
 ```
 CYC:123
-RUN
+ON   1000000000
 ```
 
-lub
+Linia 2 składa się z 4-znakowego skrótu stanu oraz wzorca aktywnych kanałów.
+
+Poza sekwencją załączania linia 2 wyświetla:
 
 ```
 CYC:20000
-WAIT
+MEAS 0000000000
 ```
 
 ---

@@ -18,7 +18,7 @@ Sekwencja pokazuje:
 
 Domyślne wartości:
 
-STEP_DELAY = 2000 ms
+STEP_DELAY = 1000 ms
 DEAD_TIME = 100 ms
 
 Kanały:
@@ -36,98 +36,27 @@ participant SM as State Machine
 participant RD as Relay Driver
 participant MOTOR as Motor
 
+Note over SM: wait STEP_DELAY
+
 SM->>RD: relay_1_on
 RD->>MOTOR: channel_1 ON
 
 Note over SM: wait STEP_DELAY
 
-SM->>RD: relay_2_on
-RD->>MOTOR: channel_2 ON
+SM->>RD: relay_1_off / relay_2_on
+RD->>MOTOR: channel_1 OFF / channel_2 ON
 
 Note over SM: wait STEP_DELAY
 
-SM->>RD: relay_3_on
-RD->>MOTOR: channel_3 ON
+SM->>RD: relay_2_off / relay_3_on
+RD->>MOTOR: channel_2 OFF / channel_3 ON
+
+Note over SM: ...
 
 Note over SM: wait STEP_DELAY
 
-SM->>RD: relay_4_on
-RD->>MOTOR: channel_4 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_5_on
-RD->>MOTOR: channel_5 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_6_on
-RD->>MOTOR: channel_6 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_7_on
-RD->>MOTOR: channel_7 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_8_on
-RD->>MOTOR: channel_8 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_9_on
-RD->>MOTOR: channel_9 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_10_on
-RD->>MOTOR: channel_10 ON
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_1_off
-RD->>MOTOR: channel_1 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_2_off
-RD->>MOTOR: channel_2 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_3_off
-RD->>MOTOR: channel_3 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_4_off
-RD->>MOTOR: channel_4 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_5_off
-RD->>MOTOR: channel_5 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_6_off
-RD->>MOTOR: channel_6 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_7_off
-RD->>MOTOR: channel_7 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_8_off
-RD->>MOTOR: channel_8 OFF
-
-Note over SM: wait STEP_DELAY
-
-SM->>RD: relay_9_off
-RD->>MOTOR: channel_9 OFF
+SM->>RD: relay_9_off / relay_10_on
+RD->>MOTOR: channel_9 OFF / channel_10 ON
 
 Note over SM: wait STEP_DELAY
 
@@ -150,16 +79,15 @@ SM->>SM: start next cycle
 
 Dla:
 
-STEP_DELAY = 2 s
+STEP_DELAY = 1 s
 
-czas jednego cyklu wynosi:
+Sekwencja wave: 11 kroków × 1 s = 11 s
 
-ON sequence = 20 s
-OFF sequence = 20 s
+(1 krok initial + 9 kroków przejścia + 1 krok wyłączenia ostatniego)
 
 razem:
 
-≈ 40 s
+≈ 11 s
 
 ---
 
@@ -167,9 +95,9 @@ razem:
 
 | Liczba cykli | Czas testu |
 | ------------ | ---------- |
-| 100 000      | ~46 dni    |
-| 200 000      | ~92 dni    |
-| 500 000      | ~231 dni   |
+| 100 000      | ~13 dni    |
+| 200 000      | ~26 dni    |
+| 500 000      | ~64 dni    |
 
 ---
 
@@ -177,12 +105,13 @@ razem:
 
 Podsumowanie jednego cyklu:
 
-1. Sekwencyjne załączenie kanałów 1 → 10
-2. Sekwencyjne wyłączenie kanałów 1 → 10
-3. Dead time
-4. Zmiana kierunku
-5. Zwiększenie licznika cykli
-6. Rozpoczęcie kolejnego cyklu
+1. Załączenie kanału 1
+2. Dla kanałów 2 → 10: wyłączenie poprzedniego, załączenie bieżącego
+3. Wyłączenie kanału 10
+4. Dead time (100 ms)
+5. Zmiana kierunku
+6. Zwiększenie licznika cykli
+7. Rozpoczęcie kolejnego cyklu
 
 ---
 
