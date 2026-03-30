@@ -191,9 +191,18 @@ Poza STATE_STEP_ON wzorzec to '0000000000'.
 
 # Watchdog
 
-Watchdog sprzętowy nie jest aktualnie zaimplementowany w firmware.
+Watchdog sprzętowy AVR jest aktywny.
 
-Planowane zabezpieczenie przed zawieszeniem głównej pętli programu.
+Timeout: **2 s**
+
+Watchdog jest wyłączany na czas `setup()`, następnie włączany na końcu `setup()`. W każdej iteracji `loop()` wywoływane jest `wdt_reset()`.
+
+Chronione moduły:
+
+* processUART()
+* updateStateMachine()
+* updateRuntime()
+* updateLCD()
 
 ---
 

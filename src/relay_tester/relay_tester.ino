@@ -5,9 +5,12 @@
 #include "lcd_display.h"
 #include "eeprom_manager.h"
 #include "runtime_counter.h"
+#include <avr/wdt.h>
 
 void setup()
 {
+    wdt_disable();  // wyłącz watchdoga na czas inicjalizacji
+
     Serial.begin(115200);
     
     initRelays();
@@ -26,10 +29,13 @@ void setup()
     setDirection(state.direction);
 
     initStateMachine();
+
+    wdt_enable(WDTO_2S);  // włącz watchdoga: reset jeśli brak wdt_reset() przez 2 s
 }
 
 void loop()
 {
+    wdt_reset();  // "nakarm" watchdoga
     processUART();
     updateStateMachine();
     updateRuntime();

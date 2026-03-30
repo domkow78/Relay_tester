@@ -25,7 +25,7 @@ Sterownik oparty jest na **Arduino Mega 2560** i działa autonomicznie – po za
 * zapis stanu do EEPROM (CRC + double buffer)
 * interfejs CLI przez UART
 * wyświetlacz LCD 16x2 (I2C)
-* watchdog sprzętowy *(planowany, nie zaimplementowany)*
+* watchdog sprzętowy (AVR WDT, timeout 2 s)
 
 ---
 
@@ -298,11 +298,13 @@ Skróty stanów:
 
 # Watchdog
 
-Watchdog sprzętowy nie jest aktualnie zaimplementowany w firmware.
+Watchdog sprzętowy AVR jest aktywny.
 
----
+Timeout: **2 s**
 
-# Emergency stop
+Jeśli główna pętla `loop()` nie wywoła `wdt_reset()` w ciągu 2 sekund, mikrokontroler zostaje automatycznie zrestartowany.
+
+Watchdog jest wyłączany na czas `setup()` (inicjalizacja EEPROM, LCD), a następnie włączany przed wejściem do `loop()`.
 
 System posiada fizyczny **Emergency Stop**, który odcina zasilanie przekaźników.
 
