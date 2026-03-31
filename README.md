@@ -226,6 +226,7 @@ STOP
 PAUSE
 CONTINUE
 RESET
+FACTORY_RESET
 TEST
 RELEASE
 SET_DELAY <ms>
@@ -267,6 +268,21 @@ FW=1.0
 
 ---
 
+# RESET vs FACTORY_RESET
+
+Komenda **RESET** zeruje tylko liczniki (cycle_counter, runtime, power_fail_counter), ale **zachowuje** konfigurację zapisaną w EEPROM.
+
+Komenda **FACTORY_RESET** zeruje liczniki **oraz** przywraca domyślne wartości konfiguracji z pliku config.h:
+
+FACTORY_RESET
+FACTORY RESET OK
+
+Użyj FACTORY_RESET gdy:
+* zmienisz wartości domyślne w config.h i chcesz je zastosować
+* chcesz całkowicie zresetować urządzenie do ustawień fabrycznych
+
+---
+
 # Wyświetlacz LCD
 
 LCD pokazuje podstawowe informacje:
@@ -300,6 +316,8 @@ Skróty stanów:
 | STATE_TEST_MODE         | TEST  |
 | STATE_FINISHED          | END   |
 | STATE_ERROR             | ERR   |
+
+Odświeżanie LCD jest ograniczone do **200 ms** (throttle), aby nie obciążać magistrali I2C.
 
 ---
 

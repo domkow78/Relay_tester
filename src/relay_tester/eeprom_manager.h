@@ -26,6 +26,7 @@ extern TestState state;
 
 void loadConfigEEPROM();
 void saveConfigEEPROM();
+void resetConfigEEPROM();  // reset konfiguracji do wartości domyślnych z config.h
 
 void loadStateEEPROM();
 void saveStateEEPROM();

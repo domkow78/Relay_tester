@@ -59,6 +59,15 @@ void saveConfigEEPROM()
     EEPROM.put(EEPROM_CONFIG_ADDR, config);
 }
 
+void resetConfigEEPROM()
+{
+    config.step_delay       = DEFAULT_STEP_DELAY;
+    config.target_cycles    = DEFAULT_TARGET_CYCLES;
+    config.measure_interval = DEFAULT_MEASURE_INTERVAL;
+    config.save_interval    = DEFAULT_SAVE_INTERVAL;
+    saveConfigEEPROM();
+}
+
 // ── State – ring buffer wear leveling ────────────────────────────────────────
 //
 //  Zapis: każdy kolejny saveStateEEPROM() trafia do następnego slotu w pierścieniu.

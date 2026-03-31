@@ -36,12 +36,14 @@ void initRelays()
 
 void setRelayOn(uint8_t ch)
 {
+    if(ch >= CHANNEL_COUNT) return;
     digitalWrite(relay_on[ch], HIGH);
     relayState[ch] = true;
 }
 
 void setRelayOff(uint8_t ch)
 {
+    if(ch >= CHANNEL_COUNT) return;
     digitalWrite(relay_on[ch], LOW);
     relayState[ch] = false;
 }

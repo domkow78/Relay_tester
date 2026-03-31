@@ -4,7 +4,10 @@
 #include "config.h"
 #include <LiquidCrystal_I2C.h>
 
+#define LCD_UPDATE_INTERVAL 200  // ms - throttle odświeżania LCD
+
 LiquidCrystal_I2C lcd(0x27,16,2);
+static uint32_t lastLcdUpdate = 0;
 
 void initLCD()
 {
@@ -14,6 +17,9 @@ void initLCD()
 
 void updateLCD()
 {
+    // Throttle - odświeżaj LCD max co 200ms (I2C jest wolne)
+    if(millis() - lastLcdUpdate < LCD_UPDATE_INTERVAL) return;
+    lastLcdUpdate = millis();
     // LINIA 1: CYC:<licznik>
     lcd.setCursor(0,0);
     lcd.print("CYC:");

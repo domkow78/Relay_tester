@@ -109,6 +109,8 @@ Funkcje:
 * allRelaysOff()
 * setDirection(dir)
 
+Funkcje setRelayOn() i setRelayOff() posiadają **walidację zakresu kanału** – jeśli ch >= CHANNEL_COUNT, funkcja kończy się bez akcji.
+
 Zawiera również:
 
 interlock bezpieczeństwa
@@ -137,6 +139,8 @@ TARGET_CYCLES
 MEASURE_INTERVAL
 SAVE_INTERVAL
 
+Funkcja resetConfigEEPROM() przywraca domyślne wartości konfiguracji z config.h.
+
 Mechanizmy bezpieczeństwa:
 
 CRC (CONFIG i STATE)
@@ -158,6 +162,7 @@ STOP
 PAUSE
 CONTINUE
 RESET
+FACTORY_RESET
 TEST
 RELEASE
 SET_DELAY
@@ -165,11 +170,15 @@ SET_TARGET
 SET_INTERVAL
 HELP
 
+Komenda używa statycznego bufora char[32] zamiast dynamicznego String, co eliminuje fragmentację pamięci.
+
 ---
 
 # LCD Interface
 
 Obsługa wyświetlacza LCD 16x2.
+
+Odświeżanie jest ograniczone do **200 ms** (throttle I2C).
 
 Wyświetlane informacje:
 

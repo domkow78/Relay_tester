@@ -3,8 +3,11 @@
 #include "eeprom_manager.h"
 #include "relay_control.h"
 #include "config.h"
+#include <string.h>
 
-static String cmd;
+#define CMD_BUFFER_SIZE 32
+static char cmd[CMD_BUFFER_SIZE];
+static uint8_t cmdIndex = 0;
 
 static const char* stateToString(SystemState s)
 {
@@ -69,38 +72,39 @@ static void sendConfig()
     Serial.println(FW_VERSION);
 }
 
-static void processCommand(String c)
+static void processCommand(const char* c)
 {
-    c.trim();
+    // Pomiń białe znaki na początku
+    while(*c == ' ' || *c == '\t' || *c == '\r') c++;
 
-    if(c == "PING")
+    if(strcmp(c, "PING") == 0)
         Serial.println("OK");
 
-    else if(c == "STATUS")
+    else if(strcmp(c, "STATUS") == 0)
         sendStatus();
 
-    else if(c == "CONFIG")
+    else if(strcmp(c, "CONFIG") == 0)
         sendConfig();
 
-    else if(c == "START")
+    else if(strcmp(c, "START") == 0)
         currentState = STATE_RUNNING;
 
-    else if(c == "PAUSE")
+    else if(strcmp(c, "PAUSE") == 0)
     {
         allRelaysOff();
         currentState = STATE_IDLE;
     }
 
-    else if(c == "CONTINUE")
+    else if(strcmp(c, "CONTINUE") == 0)
         currentState = STATE_RUNNING;
 
-    else if(c == "STOP")
+    else if(strcmp(c, "STOP") == 0)
     {
         allRelaysOff();
         currentState = STATE_IDLE;
     }
 
-    else if(c == "RESET")
+    else if(strcmp(c, "RESET") == 0)
     {
         allRelaysOff();
         state.cycle_counter = 0;
@@ -113,41 +117,55 @@ static void processCommand(String c)
         Serial.println("SYSTEM RESET");
     }
 
-    else if(c == "TEST")
+    else if(strcmp(c, "TEST") == 0)
     {
         setDirection(DIR_LEFT);  // relay_dir → LOW (OFF) przed włączeniem
         allRelaysOn();
         currentState = STATE_TEST_MODE;
     }
 
-    else if(c == "RELEASE")
+    else if(strcmp(c, "RELEASE") == 0)
     {
         allRelaysOff();
         setDirection(state.direction);  // przywróć kierunek
         currentState = STATE_IDLE;
     }
 
-    else if(c.startsWith("SET_DELAY"))
+    else if(strncmp(c, "SET_DELAY ", 10) == 0)
     {
-        config.step_delay = c.substring(10).toInt();
+        config.step_delay = atol(c + 10);
         saveConfigEEPROM();
     }
 
-    else if(c.startsWith("SET_TARGET"))
+    else if(strncmp(c, "SET_TARGET ", 11) == 0)
     {
-        config.target_cycles = c.substring(11).toInt();
+        config.target_cycles = atol(c + 11);
         saveConfigEEPROM();
     }
 
-    else if(c.startsWith("SET_INTERVAL"))
+    else if(strncmp(c, "SET_INTERVAL ", 13) == 0)
     {
-        config.measure_interval = c.substring(13).toInt();
+        config.measure_interval = atol(c + 13);
         saveConfigEEPROM();
     }
 
-    else if(c == "HELP")
+    else if(strcmp(c, "FACTORY_RESET") == 0)
     {
-        Serial.println("PING STATUS CONFIG START STOP PAUSE CONTINUE RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
+        allRelaysOff();
+        resetConfigEEPROM();  // reset konfiguracji do wartości z config.h
+        state.cycle_counter = 0;
+        state.runtime_seconds = 0;
+        state.power_fail_counter = 0;
+        state.direction = DIR_LEFT;
+        setDirection(DIR_LEFT);
+        saveStateEEPROM();
+        currentState = STATE_IDLE;
+        Serial.println("FACTORY RESET OK");
+    }
+
+    else if(strcmp(c, "HELP") == 0)
+    {
+        Serial.println("PING STATUS CONFIG START STOP PAUSE CONTINUE RESET FACTORY_RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
     }
 }
 
@@ -159,10 +177,13 @@ void processUART()
 
         if(c == '\n')
         {
+            cmd[cmdIndex] = '\0';  // null-terminate
             processCommand(cmd);
-            cmd = "";
+            cmdIndex = 0;
         }
-        else
-            cmd += c;
+        else if(c != '\r' && cmdIndex < CMD_BUFFER_SIZE - 1)
+        {
+            cmd[cmdIndex++] = c;
+        }
     }
 }

@@ -156,12 +156,23 @@ STATUS
 CONFIG
 PING
 RESET
+FACTORY_RESET
 
 ---
 
 ## STATE_ERROR
 
-Stan błędu systemu.
+Stan błędu krytycznego systemu.
+
+W tym stanie:
+
+* wszystkie przekaźniki są wyłączone (allRelaysOff)
+* system pozostaje w tym stanie do ręcznego resetu
+
+Wyjście ze stanu:
+
+* komenda RESET lub FACTORY_RESET
+* power cycle (wyłączenie i włączenie zasilania)
 
 ---
 

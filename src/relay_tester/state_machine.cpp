@@ -150,6 +150,14 @@ void updateStateMachine()
 
             break;
 
+
+        case STATE_ERROR:
+            // Stan błędu krytycznego - wyłącz wszystkie przekaźniki i zatrzymaj system
+            allRelaysOff();
+            // System pozostaje w tym stanie do ręcznego resetu (komenda RESET lub power cycle)
+            break;
+
+
         default:
             break;
     }
