@@ -33,12 +33,5 @@ RELEASE           ← wyłącz tryb pomiarowy
 START             ← wznów test
 ```
 
-## Konfiguracja (opcjonalnie)
-```
-SET_TARGET 500000
-SET_DELAY 1000
-SET_INTERVAL 20000
-```
-
 ---
 *Relay Endurance Tester v1.0*
