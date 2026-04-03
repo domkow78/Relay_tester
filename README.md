@@ -22,7 +22,8 @@ Sterownik oparty jest na **Arduino Mega 2560** i działa autonomicznie – po za
 * punkty pomiarowe co określoną liczbę cykli
 * tryb TEST do ręcznego pomiaru rezystancji styków
 * automatyczne wznowienie testu po zaniku zasilania
-* zapis stanu do EEPROM (CRC + ring buffer wear leveling, 271 slotów)
+* zapis stanu do EEPROM (CRC + ring buffer wear leveling + sequence)
+* zapis stanu przy każdym punkcie pomiarowym
 * interfejs CLI przez UART
 * wyświetlacz LCD 16x2 (I2C)
 * watchdog sprzętowy (AVR WDT, timeout 2 s)
@@ -166,6 +167,7 @@ System zapisuje stan testu w EEPROM.
 
 Zapisywane dane:
 
+sequence (numer sekwencji zapisu)
 cycle_counter
 runtime_seconds
 direction
@@ -174,8 +176,9 @@ power_fail_counter
 Po włączeniu zasilania system:
 
 1. odczytuje EEPROM
-2. zwiększa licznik restartów
-3. wznawia test
+2. wybiera slot z najwyższym numerem sequence
+3. zwiększa licznik restartów
+4. wznawia test
 
 chyba że osiągnięto punkt pomiarowy.
 
@@ -187,13 +190,14 @@ Zastosowano:
 
 CRC (CONFIG i STATE)
 ring buffer wear leveling (STATE – 271 slotów)
+numer sekwencji (sequence) – gwarantuje wybór najnowszego slotu
 
 Mapa EEPROM:
 
 | Adresy | Zawartość |
 |--------|----------|
 | 0 – 31 | TestConfig (1 slot) |
-| 32 – 4095 | TestState ring buffer (271 slotów × 15 B) |
+| 32 – 4095 | TestState ring buffer (sloty po 19 B) |
 
 Struktury:
 
@@ -205,6 +209,7 @@ Zapisywane dane:
 STEP_DELAY
 TARGET_CYCLES
 MEASURE_INTERVAL
+sequence
 cycle_counter
 runtime_seconds
 direction

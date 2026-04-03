@@ -298,6 +298,7 @@ SYSTEM RESET
 ```
 
 **Zerowane wartości:**
+- `sequence` (numer sekwencji zapisu)
 - `cycle_counter`
 - `runtime_seconds`
 - `power_fail_counter`

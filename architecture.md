@@ -127,6 +127,7 @@ Odpowiada za zapisywanie stanu testu.
 
 Zapisuje:
 
+sequence (numer sekwencji zapisu)
 cycle_counter
 runtime_seconds
 direction
@@ -145,6 +146,23 @@ Mechanizmy bezpieczeństwa:
 
 CRC (CONFIG i STATE)
 ring buffer wear leveling (STATE – 271 slotów, adresy 32–4095)
+numer sekwencji (sequence) – zapewnia poprawny wybór najnowszego slotu
+
+## Algorytm wyboru slotu przy starcie
+
+Przy wczytywaniu stanu z EEPROM:
+
+1. Skanowane są wszystkie sloty ring buffera
+2. Wybierany jest slot z **najwyższym numerem sequence** (nie cycle_counter)
+3. Gwarantuje to poprawne wznowienie nawet po resecie testu
+
+## Zapis stanu
+
+Stan jest zapisywany:
+
+* co `save_interval` cykli
+* przy wejściu w `STATE_WAIT_MEASUREMENT` (punkt pomiarowy)
+* przy każdym zapisie inkrementowany jest `sequence`
 
 ---
 

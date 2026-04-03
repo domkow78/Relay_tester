@@ -107,6 +107,8 @@ Kolejność operacji:
 cycle_counter++
 zmiana kierunku (DIR_LEFT ↔ DIR_RIGHT)
 setDirection()
+zapis do EEPROM (co save_interval cykli)
+zapis do EEPROM (przy przejściu do WAIT_MEASUREMENT)
 
 System sprawdza:
 
@@ -118,6 +120,11 @@ MEASURE_INTERVAL
 ## STATE_WAIT_MEASUREMENT
 
 Test zatrzymany w punkcie pomiarowym.
+
+Przy wejściu w ten stan:
+
+* stan jest automatycznie zapisywany do EEPROM
+* gwarantuje to poprawne wznowienie po zaniku zasilania
 
 Dostępne komendy:
 
