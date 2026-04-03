@@ -133,7 +133,7 @@ W tym stanie wykonywany jest pomiar rezystancji styków.
 
 Test można wznowić komendą:
 
-CONTINUE
+START
 
 ---
 
@@ -228,7 +228,6 @@ STATUS
 CONFIG
 START
 STOP
-CONTINUE
 RESET
 FACTORY_RESET
 TEST

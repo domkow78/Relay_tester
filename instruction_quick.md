@@ -9,9 +9,8 @@
 | `PING` | Test komunikacji → `OK` |
 | `STATUS` | Wyświetl status systemu |
 | `CONFIG` | Wyświetl konfigurację |
-| `START` | Uruchom test |
+| `START` | Uruchom/wznów test |
 | `STOP` | Zatrzymaj test |
-| `CONTINUE` | Wznów test |
 | `TEST` | Tryb pomiarowy (wszystkie ON) |
 | `RELEASE` | Wyłącz tryb pomiarowy |
 | `RESET` | Zeruj liczniki (zachowaj config) |
@@ -31,7 +30,7 @@ START             ← uruchom test
 ```
 TEST              ← włącz tryb pomiarowy (wszystkie przekaźniki ON)
 RELEASE           ← wyłącz tryb pomiarowy
-CONTINUE          ← wznów test
+START             ← wznów test
 ```
 
 ## Konfiguracja (opcjonalnie)

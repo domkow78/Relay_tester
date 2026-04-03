@@ -90,9 +90,8 @@ Wyświetlacz 16x2 I2C pokazuje:
 | `PING` | Test komunikacji |
 | `STATUS` | Wyświetl status systemu |
 | `CONFIG` | Wyświetl konfigurację |
-| `START` | Uruchom test |
+| `START` | Uruchom/wznów test |
 | `STOP` | Zatrzymaj test |
-| `CONTINUE` | Wznów test |
 | `RESET` | Wyzeruj liczniki |
 | `FACTORY_RESET` | Przywróć ustawienia fabryczne |
 | `TEST` | Włącz tryb pomiarowy |
@@ -176,14 +175,14 @@ FW=1.0
 
 ### START
 
-Uruchamia test od aktualnego stanu.
+Uruchamia lub wznawia test.
 
 **Komenda:**
 ```
 START
 ```
 
-**Dostępność:** Stan `IDLE`
+**Dostępność:** Stany `IDLE`, `WAIT_MEASUREMENT`
 
 **Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
 
@@ -199,21 +198,6 @@ STOP
 ```
 
 **Dostępność:** Stany testowe (`RUNNING`, `STEP_ON`, `STEP_OFF`, `WAIT_DEAD_TIME`, `CHANGE_DIRECTION`)
-
-**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
-
----
-
-### CONTINUE
-
-Wznawia zatrzymany test.
-
-**Komenda:**
-```
-CONTINUE
-```
-
-**Dostępność:** Stany `IDLE`, `WAIT_MEASUREMENT`
 
 **Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
 
@@ -367,7 +351,7 @@ STOP
 
 Aby wznowić:
 ```
-CONTINUE
+START
 ```
 
 ### Monitorowanie postępu
@@ -447,7 +431,7 @@ Co `MEASURE_INTERVAL` cykli system zatrzymuje się w stanie `WAIT_MEASUREMENT`.
 
 Aby wznowić test:
 ```
-CONTINUE
+START
 ```
 
 Aby wykonać pomiar rezystancji:
@@ -540,7 +524,7 @@ RELEASE
    ```
 6. Wznów test:
    ```
-   CONTINUE
+   START
    ```
 
 ---
