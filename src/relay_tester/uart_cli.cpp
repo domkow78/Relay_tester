@@ -190,6 +190,11 @@ static void processCommand(const char* c)
     {
         Serial.println("PING STATUS CONFIG START STOP RESET FACTORY_RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
     }
+
+    else if(strlen(c) > 0)
+    {
+        Serial.println("ERR:UNKNOWN_CMD");
+    }
 }
 
 void processUART()
