@@ -87,7 +87,8 @@ void loadStateEEPROM()
 
         if(crc16((uint8_t*)&s, sizeof(TestState) - 2) == s.crc)
         {
-            if(!found || s.cycle_counter > best.cycle_counter)
+            // Wybierz slot z najwyższym numerem sekwencji (najnowszy zapis)
+            if(!found || s.sequence > best.sequence)
             {
                 best     = s;
                 bestSlot = i;
@@ -104,6 +105,7 @@ void loadStateEEPROM()
     else
     {
         // żaden slot niepoprawny – wartości domyślne
+        state.sequence           = 0;
         state.cycle_counter      = 0;
         state.runtime_seconds    = 0;
         state.power_fail_counter = 0;
@@ -114,6 +116,7 @@ void loadStateEEPROM()
 
 void saveStateEEPROM()
 {
+    state.sequence++;  // inkrementuj numer sekwencji przy każdym zapisie
     state.crc = crc16((uint8_t*)&state, sizeof(TestState) - 2);
     EEPROM.put(EEPROM_STATE_START + currentSlot * STATE_SLOT_SIZE, state);
     currentSlot = (currentSlot + 1) % STATE_SLOT_COUNT;

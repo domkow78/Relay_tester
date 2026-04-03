@@ -14,6 +14,7 @@ struct TestConfig
 
 struct TestState
 {
+    uint32_t sequence;          // numer sekwencji - inkrementowany przy każdym zapisie
     uint32_t cycle_counter;
     uint32_t runtime_seconds;
     uint32_t power_fail_counter;

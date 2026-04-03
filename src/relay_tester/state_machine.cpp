@@ -142,6 +142,7 @@ void updateStateMachine()
 
             if(state.cycle_counter % config.measure_interval == 0)
             {
+                saveStateEEPROM();  // zapisz stan przed wejściem w tryb pomiaru
                 currentState = STATE_WAIT_MEASUREMENT;
                 break;
             }
