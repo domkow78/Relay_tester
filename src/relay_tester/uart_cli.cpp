@@ -104,17 +104,6 @@ static void processCommand(const char* c)
             Serial.println("ERR:INVALID_STATE");
     }
 
-    else if(strcmp(c, "PAUSE") == 0)
-    {
-        if(isTestRunning())
-        {
-            allRelaysOff();
-            currentState = STATE_IDLE;
-        }
-        else
-            Serial.println("ERR:INVALID_STATE");
-    }
-
     else if(strcmp(c, "CONTINUE") == 0)
     {
         if(currentState == STATE_IDLE || currentState == STATE_WAIT_MEASUREMENT)
@@ -207,7 +196,7 @@ static void processCommand(const char* c)
 
     else if(strcmp(c, "HELP") == 0)
     {
-        Serial.println("PING STATUS CONFIG START STOP PAUSE CONTINUE RESET FACTORY_RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
+        Serial.println("PING STATUS CONFIG START STOP CONTINUE RESET FACTORY_RESET TEST RELEASE SET_DELAY SET_TARGET SET_INTERVAL HELP");
     }
 }
 

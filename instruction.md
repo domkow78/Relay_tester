@@ -92,7 +92,7 @@ Wyświetlacz 16x2 I2C pokazuje:
 | `CONFIG` | Wyświetl konfigurację |
 | `START` | Uruchom test |
 | `STOP` | Zatrzymaj test |
-| `PAUSE` | Wstrzymaj test |
+| `STOP` | Zatrzymaj test |
 | `CONTINUE` | Wznów test |
 | `RESET` | Wyzeruj liczniki |
 | `FACTORY_RESET` | Przywróć ustawienia fabryczne |
@@ -190,17 +190,13 @@ START
 
 ---
 
-### STOP / PAUSE
+### STOP
 
 Zatrzymuje test i wyłącza wszystkie przekaźniki.
 
 **Komenda:**
 ```
 STOP
-```
-lub
-```
-PAUSE
 ```
 
 **Dostępność:** Stany testowe (`RUNNING`, `STEP_ON`, `STEP_OFF`, `WAIT_DEAD_TIME`, `CHANGE_DIRECTION`)
