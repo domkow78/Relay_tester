@@ -20,11 +20,11 @@ void updateLCD()
     // Throttle - odświeżaj LCD max co 200ms (I2C jest wolne)
     if(millis() - lastLcdUpdate < LCD_UPDATE_INTERVAL) return;
     lastLcdUpdate = millis();
-    // LINIA 1: CYC:<licznik>
+    // LINIA 1: CYCLE:<licznik>
     lcd.setCursor(0,0);
-    lcd.print("CYC:");
+    lcd.print("CYCLE:");
     lcd.print(state.cycle_counter);
-    lcd.print("      ");  // wyczyść resztę
+    lcd.print("    ");  // wyczyść resztę
 
     // LINIA 2: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16
     lcd.setCursor(0,1);

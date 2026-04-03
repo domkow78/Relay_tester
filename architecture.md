@@ -201,7 +201,7 @@ Odświeżanie jest ograniczone do **200 ms** (throttle I2C).
 Wyświetlane informacje:
 
 linia 1
-CYC:<cycle_counter>
+CYCLE:<cycle_counter>
 
 linia 2
 Format: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16 znaków

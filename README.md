@@ -293,7 +293,7 @@ Użyj FACTORY_RESET gdy:
 LCD pokazuje podstawowe informacje:
 
 linia 1
-CYC:123456
+CYCLE:123456
 
 linia 2
 Format: [4 znaki stanu][spacja][10 znaków wzorca][spacja] = 16 znaków

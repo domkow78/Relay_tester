@@ -76,7 +76,7 @@ Komunikacja z systemem odbywa się przez port szeregowy. Można użyć:
 
 Wyświetlacz 16x2 I2C pokazuje:
 
-- Linia 1: licznik cykli (`CYC:123456`)
+- Linia 1: licznik cykli (`CYCLE:123456`)
 - Linia 2: stan systemu i wzorzec kanałów
 
 ---
@@ -457,7 +457,7 @@ TEST
 ### Format wyświetlania
 
 ```
-Linia 1: CYC:123456
+Linia 1: CYCLE:123456
 Linia 2: XXXX YYYYYYYYYY
 ```
 
@@ -468,17 +468,17 @@ Gdzie:
 ### Przykłady
 
 ```
-CYC:123456
+CYCLE:123456
 ON   1000000000     ← kanał 1 załączony
 ```
 
 ```
-CYC:123456
+CYCLE:123456
 ON   0100000000     ← kanał 2 załączony
 ```
 
 ```
-CYC:20000
+CYCLE:20000
 MEAS 0000000000     ← punkt pomiarowy
 ```
 
