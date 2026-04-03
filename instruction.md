@@ -92,7 +92,6 @@ Wyświetlacz 16x2 I2C pokazuje:
 | `CONFIG` | Wyświetl konfigurację |
 | `START` | Uruchom test |
 | `STOP` | Zatrzymaj test |
-| `STOP` | Zatrzymaj test |
 | `CONTINUE` | Wznów test |
 | `RESET` | Wyzeruj liczniki |
 | `FACTORY_RESET` | Przywróć ustawienia fabryczne |
