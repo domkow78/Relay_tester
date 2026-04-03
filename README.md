@@ -342,16 +342,16 @@ Watchdog jest wyłączany na czas `setup()` (inicjalizacja EEPROM, LCD), a nast�
 
 AVR ATmega2560 gwarantuje 100 000 zapisów na komórkę.
 
-Zastosowany mechanizm: **ring buffer wear leveling** – każdy zapis trafia do następnego slotu w pierścieniu. Przy starcie skanowane są wszystkie sloty; wybrany jest ten z najwyższym `cycle_counter` i poprawnym CRC.
+Zastosowany mechanizm: **ring buffer wear leveling** – każdy zapis trafia do następnego slotu w pierścieniu. Przy starcie skanowane są wszystkie sloty; wybrany jest ten z najwyższym `sequence` i poprawnym CRC.
 
 | Parametr | Wartość |
 |---|---|
-| Liczba slotów STATE | 271 |
-| Zapisów przed zużyciem | 271 × 100 000 = **27 100 000** |
+| Liczba slotów STATE | 213 |
+| Zapisów przed zużyciem | 213 × 100 000 = **21 300 000** |
 | SAVE_INTERVAL | 100 cykli |
 | RUNTIME_SAVE_INTERVAL | 300 s |
 
-Przy teście 500 000 cykli liczba zapisów wynosi ~5 800, co oznacza ponad **4 600 pełnych testów** przed zużyciem.
+Przy teście 500 000 cykli liczba zapisów wynosi ~5 800, co oznacza ponad **3 600 pełnych testów** przed zużyciem.
 
 ---
 

@@ -186,6 +186,8 @@ START
 
 **Dostępność:** Stan `IDLE`
 
+**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
+
 ---
 
 ### STOP / PAUSE
@@ -201,7 +203,9 @@ lub
 PAUSE
 ```
 
-**Dostępność:** Stan `RUNNING`
+**Dostępność:** Stany testowe (`RUNNING`, `STEP_ON`, `STEP_OFF`, `WAIT_DEAD_TIME`, `CHANGE_DIRECTION`)
+
+**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
 
 ---
 
@@ -216,6 +220,8 @@ CONTINUE
 
 **Dostępność:** Stany `IDLE`, `WAIT_MEASUREMENT`
 
+**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
+
 ---
 
 ### TEST
@@ -229,6 +235,8 @@ TEST
 
 **Dostępność:** Stany `IDLE`, `WAIT_MEASUREMENT`
 
+**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
+
 ---
 
 ### RELEASE
@@ -241,6 +249,8 @@ RELEASE
 ```
 
 **Dostępność:** Stan `TEST_MODE`
+
+**Błąd:** `ERR:INVALID_STATE` jeśli komenda wykonana w niedozwolonym stanie
 
 ---
 

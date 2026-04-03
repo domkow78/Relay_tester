@@ -72,6 +72,16 @@ static void sendConfig()
     Serial.println(FW_VERSION);
 }
 
+// Pomocnicza funkcja - sprawdza czy test jest w trakcie pracy
+static bool isTestRunning()
+{
+    return currentState == STATE_RUNNING ||
+           currentState == STATE_STEP_ON ||
+           currentState == STATE_STEP_OFF ||
+           currentState == STATE_WAIT_DEAD_TIME ||
+           currentState == STATE_CHANGE_DIRECTION;
+}
+
 static void processCommand(const char* c)
 {
     // Pomiń białe znaki na początku
@@ -87,26 +97,47 @@ static void processCommand(const char* c)
         sendConfig();
 
     else if(strcmp(c, "START") == 0)
-        currentState = STATE_RUNNING;
+    {
+        if(currentState == STATE_IDLE)
+            currentState = STATE_RUNNING;
+        else
+            Serial.println("ERR:INVALID_STATE");
+    }
 
     else if(strcmp(c, "PAUSE") == 0)
     {
-        allRelaysOff();
-        currentState = STATE_IDLE;
+        if(isTestRunning())
+        {
+            allRelaysOff();
+            currentState = STATE_IDLE;
+        }
+        else
+            Serial.println("ERR:INVALID_STATE");
     }
 
     else if(strcmp(c, "CONTINUE") == 0)
-        currentState = STATE_RUNNING;
+    {
+        if(currentState == STATE_IDLE || currentState == STATE_WAIT_MEASUREMENT)
+            currentState = STATE_RUNNING;
+        else
+            Serial.println("ERR:INVALID_STATE");
+    }
 
     else if(strcmp(c, "STOP") == 0)
     {
-        allRelaysOff();
-        currentState = STATE_IDLE;
+        if(isTestRunning())
+        {
+            allRelaysOff();
+            currentState = STATE_IDLE;
+        }
+        else
+            Serial.println("ERR:INVALID_STATE");
     }
 
     else if(strcmp(c, "RESET") == 0)
     {
         allRelaysOff();
+        state.sequence = 0;
         state.cycle_counter = 0;
         state.runtime_seconds = 0;
         state.power_fail_counter = 0;
@@ -119,16 +150,26 @@ static void processCommand(const char* c)
 
     else if(strcmp(c, "TEST") == 0)
     {
-        setDirection(DIR_LEFT);  // relay_dir → LOW (OFF) przed włączeniem
-        allRelaysOn();
-        currentState = STATE_TEST_MODE;
+        if(currentState == STATE_IDLE || currentState == STATE_WAIT_MEASUREMENT)
+        {
+            setDirection(DIR_LEFT);  // relay_dir → LOW (OFF) przed włączeniem
+            allRelaysOn();
+            currentState = STATE_TEST_MODE;
+        }
+        else
+            Serial.println("ERR:INVALID_STATE");
     }
 
     else if(strcmp(c, "RELEASE") == 0)
     {
-        allRelaysOff();
-        setDirection(state.direction);  // przywróć kierunek
-        currentState = STATE_IDLE;
+        if(currentState == STATE_TEST_MODE)
+        {
+            allRelaysOff();
+            setDirection(state.direction);  // przywróć kierunek
+            currentState = STATE_IDLE;
+        }
+        else
+            Serial.println("ERR:INVALID_STATE");
     }
 
     else if(strncmp(c, "SET_DELAY ", 10) == 0)
@@ -153,6 +194,7 @@ static void processCommand(const char* c)
     {
         allRelaysOff();
         resetConfigEEPROM();  // reset konfiguracji do wartości z config.h
+        state.sequence = 0;
         state.cycle_counter = 0;
         state.runtime_seconds = 0;
         state.power_fail_counter = 0;

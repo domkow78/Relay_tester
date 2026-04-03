@@ -50,10 +50,13 @@ Dostępne komendy:
 
 START
 TEST
+CONTINUE
 STATUS
 CONFIG
 PING
 HELP
+RESET
+FACTORY_RESET
 
 ---
 
@@ -133,6 +136,8 @@ TEST
 STATUS
 CONFIG
 PING
+RESET
+FACTORY_RESET
 
 ---
 
@@ -145,11 +150,16 @@ relay_on_off = ON
 
 Pozwala mierzyć rezystancję styków.
 
-Wyjście:
+Dostępne komendy:
 
 RELEASE
+STATUS
+CONFIG
+PING
+RESET
+FACTORY_RESET
 
-Powrót do STATE_IDLE.
+Powrot do STATE_IDLE przez RELEASE.
 
 ---
 
