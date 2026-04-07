@@ -2,6 +2,7 @@
 #include "config.h"
 #include <EEPROM.h>
 #include <string.h>
+#include <avr/wdt.h>
 
 TestConfig config;
 TestState  state;
@@ -127,13 +128,14 @@ void clearAllStateSlots()
 {
     // Wyczyść wszystkie sloty stanu - zapisz dane z nieprawidłowym CRC
     // aby stare dane nie były odczytywane po RESET/FACTORY_RESET
-    
-    // Użyj EEPROM.write() zamiast EEPROM.put() aby wymusić zapis
-    // Zapisujemy tylko pierwsze 4 bajty każdego slotu (sequence) jako 0
-    // oraz ostatnie 2 bajty (CRC) jako 0xDEAD - to na pewno nie będzie prawidłowe CRC
+    //
+    // UWAGA: Ta operacja trwa ~5 sekund (270 slotów × 6 zapisów × 3.3ms)
+    // Musimy resetować watchdoga w pętli!
     
     for(uint16_t i = 0; i < STATE_SLOT_COUNT; i++)
     {
+        wdt_reset();  // KRYTYCZNE: resetuj watchdoga co slot!
+        
         uint16_t addr = EEPROM_STATE_START + i * STATE_SLOT_SIZE;
         
         // Wyzeruj sequence (pierwsze 4 bajty)
