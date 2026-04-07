@@ -147,6 +147,7 @@ Mechanizmy bezpieczeństwa:
 CRC (CONFIG i STATE)
 ring buffer wear leveling (STATE – 271 slotów, adresy 32–4095)
 numer sekwencji (sequence) – zapewnia poprawny wybór najnowszego slotu
+clearAllStateSlots() – inwalidacja wszystkich slotów przy RESET/FACTORY_RESET
 
 ## Algorytm wyboru slotu przy starcie
 
@@ -154,7 +155,17 @@ Przy wczytywaniu stanu z EEPROM:
 
 1. Skanowane są wszystkie sloty ring buffera
 2. Wybierany jest slot z **najwyższym numerem sequence** (nie cycle_counter)
-3. Gwarantuje to poprawne wznowienie nawet po resecie testu
+3. Slot musi mieć **poprawne CRC** – sloty z nieprawidłowym CRC są ignorowane
+4. Gwarantuje to poprawne wznowienie nawet po resecie testu
+
+## Funkcja clearAllStateSlots()
+
+Funkcja wywoływana przy `RESET` i `FACTORY_RESET`:
+
+1. Zapisuje do **wszystkich 271 slotów** nieprawidłowe dane (CRC = 0x0000)
+2. Zapobiega odczytaniu starych danych po restarcie
+3. Resetuje wskaźnik slotu do 0
+4. **Uwaga:** Operacja trwa kilka sekund (zapis 271 slotów)
 
 ## Zapis stanu
 

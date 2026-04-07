@@ -23,6 +23,7 @@ Sterownik oparty jest na **Arduino Mega 2560** i działa autonomicznie – po za
 * tryb TEST do ręcznego pomiaru rezystancji styków
 * automatyczne wznowienie testu po zaniku zasilania
 * zapis stanu do EEPROM (CRC + ring buffer wear leveling + sequence)
+* czyszczenie slotów EEPROM przy RESET/FACTORY_RESET (clearAllStateSlots)
 * zapis stanu przy każdym punkcie pomiarowym
 * interfejs CLI przez UART
 * wyświetlacz LCD 16x2 (I2C)
