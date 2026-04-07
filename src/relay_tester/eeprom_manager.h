@@ -31,5 +31,6 @@ void resetConfigEEPROM();  // reset konfiguracji do wartości domyślnych z conf
 
 void loadStateEEPROM();
 void saveStateEEPROM();
+void clearAllStateSlots();  // czyści wszystkie sloty stanu w EEPROM
 
 #endif

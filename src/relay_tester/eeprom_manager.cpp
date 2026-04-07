@@ -1,6 +1,7 @@
 #include "eeprom_manager.h"
 #include "config.h"
 #include <EEPROM.h>
+#include <string.h>
 
 TestConfig config;
 TestState  state;
@@ -120,4 +121,20 @@ void saveStateEEPROM()
     state.crc = crc16((uint8_t*)&state, sizeof(TestState) - 2);
     EEPROM.put(EEPROM_STATE_START + currentSlot * STATE_SLOT_SIZE, state);
     currentSlot = (currentSlot + 1) % STATE_SLOT_COUNT;
+}
+
+void clearAllStateSlots()
+{
+    // Wyczyść wszystkie sloty stanu - zapisz nieprawidłowe CRC
+    // aby stare dane nie były odczytywane po RESET/FACTORY_RESET
+    TestState invalidState;
+    memset(&invalidState, 0xFF, sizeof(TestState));  // wszystkie bajty na 0xFF
+    invalidState.crc = 0x0000;  // nieprawidłowe CRC (CRC z 0xFF != 0x0000)
+    
+    for(uint16_t i = 0; i < STATE_SLOT_COUNT; i++)
+    {
+        EEPROM.put(EEPROM_STATE_START + i * STATE_SLOT_SIZE, invalidState);
+    }
+    
+    currentSlot = 0;  // zacznij od początku
 }

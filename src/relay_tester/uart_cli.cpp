@@ -118,6 +118,7 @@ static void processCommand(const char* c)
     else if(strcmp(c, "RESET") == 0)
     {
         allRelaysOff();
+        clearAllStateSlots();  // WYCZYŚĆ WSZYSTKIE SLOTY przed zapisem nowego stanu
         state.sequence = 0;
         state.cycle_counter = 0;
         state.runtime_seconds = 0;
@@ -175,6 +176,7 @@ static void processCommand(const char* c)
     {
         allRelaysOff();
         resetConfigEEPROM();  // reset konfiguracji do wartości z config.h
+        clearAllStateSlots(); // WYCZYŚĆ WSZYSTKIE SLOTY przed zapisem nowego stanu
         state.sequence = 0;
         state.cycle_counter = 0;
         state.runtime_seconds = 0;
