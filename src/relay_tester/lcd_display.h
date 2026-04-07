@@ -3,5 +3,6 @@
 
 void initLCD();
 void updateLCD();
+void forceUpdateLCD();  // wymusza natychmiastowe odświeżenie
 
 #endif

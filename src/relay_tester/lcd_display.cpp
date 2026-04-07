@@ -60,3 +60,10 @@ void updateLCD()
 
     lcd.print(line2);
 }
+
+void forceUpdateLCD()
+{
+    // Wymuś natychmiastowe odświeżenie LCD (resetuj throttle)
+    lastLcdUpdate = 0;
+    updateLCD();
+}

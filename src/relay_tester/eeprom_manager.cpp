@@ -125,15 +125,28 @@ void saveStateEEPROM()
 
 void clearAllStateSlots()
 {
-    // Wyczyść wszystkie sloty stanu - zapisz nieprawidłowe CRC
+    // Wyczyść wszystkie sloty stanu - zapisz dane z nieprawidłowym CRC
     // aby stare dane nie były odczytywane po RESET/FACTORY_RESET
-    TestState invalidState;
-    memset(&invalidState, 0xFF, sizeof(TestState));  // wszystkie bajty na 0xFF
-    invalidState.crc = 0x0000;  // nieprawidłowe CRC (CRC z 0xFF != 0x0000)
+    
+    // Użyj EEPROM.write() zamiast EEPROM.put() aby wymusić zapis
+    // Zapisujemy tylko pierwsze 4 bajty każdego slotu (sequence) jako 0
+    // oraz ostatnie 2 bajty (CRC) jako 0xDEAD - to na pewno nie będzie prawidłowe CRC
     
     for(uint16_t i = 0; i < STATE_SLOT_COUNT; i++)
     {
-        EEPROM.put(EEPROM_STATE_START + i * STATE_SLOT_SIZE, invalidState);
+        uint16_t addr = EEPROM_STATE_START + i * STATE_SLOT_SIZE;
+        
+        // Wyzeruj sequence (pierwsze 4 bajty)
+        EEPROM.write(addr + 0, 0x00);
+        EEPROM.write(addr + 1, 0x00);
+        EEPROM.write(addr + 2, 0x00);
+        EEPROM.write(addr + 3, 0x00);
+        
+        // Zapisz nieprawidłowe CRC na końcu slotu (ostatnie 2 bajty)
+        // CRC jest na pozycji sizeof(TestState) - 2
+        uint16_t crcAddr = addr + STATE_SLOT_SIZE - 2;
+        EEPROM.write(crcAddr + 0, 0xDE);  // 0xDEAD - na pewno nieprawidłowe
+        EEPROM.write(crcAddr + 1, 0xAD);
     }
     
     currentSlot = 0;  // zacznij od początku

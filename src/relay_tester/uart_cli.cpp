@@ -2,6 +2,7 @@
 #include "state_machine.h"
 #include "eeprom_manager.h"
 #include "relay_control.h"
+#include "lcd_display.h"
 #include "config.h"
 #include <string.h>
 
@@ -127,6 +128,7 @@ static void processCommand(const char* c)
         setDirection(DIR_LEFT);
         saveStateEEPROM();
         currentState = STATE_IDLE;
+        forceUpdateLCD();  // natychmiast odśwież wyświetlacz
         Serial.println("SYSTEM RESET");
     }
 
@@ -185,6 +187,7 @@ static void processCommand(const char* c)
         setDirection(DIR_LEFT);
         saveStateEEPROM();
         currentState = STATE_IDLE;
+        forceUpdateLCD();  // natychmiast odśwież wyświetlacz
         Serial.println("FACTORY RESET OK");
     }
 
