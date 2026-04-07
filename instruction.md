@@ -293,7 +293,7 @@ SYSTEM RESET
 - `power_fail_counter`
 - `direction` (reset do LEFT)
 
-**Ważne:** Komenda czyści wszystkie sloty EEPROM (funkcja `clearAllStateSlots()`), co zapewnia poprawne działanie po restarcie urządzenia. Operacja może trwać kilka sekund.
+**Ważne:** Komenda czyści wszystkie sloty EEPROM (funkcja `clearAllStateSlots()`), co zapewnia poprawne działanie po restarcie urządzenia. **Operacja trwa około 5 sekund** - poczekaj na odpowiedź `SYSTEM RESET`.
 
 ---
 
@@ -317,7 +317,7 @@ FACTORY RESET OK
 - `MEASURE_INTERVAL = 20000`
 - `SAVE_INTERVAL = 100`
 
-**Ważne:** Komenda czyści wszystkie sloty EEPROM (funkcja `clearAllStateSlots()`), co zapewnia poprawne działanie po restarcie urządzenia. Operacja może trwać kilka sekund.
+**Ważne:** Komenda czyści wszystkie sloty EEPROM (funkcja `clearAllStateSlots()`), co zapewnia poprawne działanie po restarcie urządzenia. **Operacja trwa około 5 sekund** - poczekaj na odpowiedź `FACTORY RESET OK`.
 
 ---
 

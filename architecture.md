@@ -162,10 +162,11 @@ Przy wczytywaniu stanu z EEPROM:
 
 Funkcja wywoływana przy `RESET` i `FACTORY_RESET`:
 
-1. Zapisuje do **wszystkich 271 slotów** nieprawidłowe dane (CRC = 0x0000)
+1. Zapisuje do **wszystkich 270 slotów** nieprawidłowe dane (CRC = 0xDEAD)
 2. Zapobiega odczytaniu starych danych po restarcie
 3. Resetuje wskaźnik slotu do 0
-4. **Uwaga:** Operacja trwa kilka sekund (zapis 271 slotów)
+4. **Czas trwania:** ~5 sekund (270 slotów × 6 zapisów × 3.3ms)
+5. **Watchdog:** funkcja wywołuje `wdt_reset()` co każdy slot, aby zapobiec resetowi
 
 ## Zapis stanu
 
