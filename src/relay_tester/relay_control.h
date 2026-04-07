@@ -9,6 +9,10 @@ extern const uint8_t relay_on[CHANNEL_COUNT];
 extern const uint8_t relay_dir[CHANNEL_COUNT];
 extern bool relayState[CHANNEL_COUNT];
 
+// Wczesna inicjalizacja - wywoływana automatycznie PRZED main()/setup()
+// Zapobiega niekontrolowanemu załączeniu przekaźników podczas restartu
+void earlyRelayInit(void) __attribute__((constructor(101)));
+
 void initRelays();
 void setRelayOn(uint8_t ch);
 void setRelayOff(uint8_t ch);

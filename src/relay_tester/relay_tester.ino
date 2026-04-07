@@ -7,8 +7,14 @@
 #include "runtime_counter.h"
 #include <avr/wdt.h>
 
+// Deklaracja wczesnej inicjalizacji z relay_control.cpp
+extern void earlyRelayInit(void) __attribute__((constructor(101)));
+
 void setup()
 {
+    // UWAGA: earlyRelayInit() została już wywołana automatycznie przed setup()
+    // dzięki __attribute__((constructor)) - piny relay_on są już OUTPUT LOW
+    
     wdt_disable();  // wyłącz watchdoga na czas inicjalizacji
 
     Serial.begin(115200);
