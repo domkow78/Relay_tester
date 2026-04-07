@@ -9,6 +9,12 @@
 
 void setup()
 {
+    // ================================================================
+    // KRYTYCZNE: earlyPinSafeInit() MUSI być PIERWSZĄ instrukcją!
+    // Zapobiega niekontrolowanemu załączeniu przekaźników podczas restartu
+    // ================================================================
+    earlyPinSafeInit();
+    
     wdt_disable();  // wyłącz watchdoga na czas inicjalizacji
 
     Serial.begin(115200);
