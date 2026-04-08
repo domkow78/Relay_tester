@@ -2,46 +2,35 @@
 #include <avr/io.h>
 
 const uint8_t relay_on[CHANNEL_COUNT] =
-{19,17,15,23,3,5,7,9,11,13};
-// zamiana 1 -> 23
+{19,17,15,23,3,5,7,9,11,27};
+// zamiana 1 -> 23, 13 -> 27 (bootloader używa pin 13 do LED)
 
 const uint8_t relay_dir[CHANNEL_COUNT] =
-{18,16,14,22,2,4,6,8,10,12};
-// zamiana 0 --> 22
+{18,16,14,22,2,4,6,8,10,26};
+// zamiana 0 --> 22, 12 -> 26 (pin 12/13 - bootloader)
 
 bool relayState[CHANNEL_COUNT] = {0};
 
 void earlyPinSafeInit()
 {
     // ================================================================
-    // KRYTYCZNA FUNKCJA BEZPIECZEŃSTWA!
-    // Musi być wywołana jako PIERWSZA instrukcja w setup()
+    // SZYBKA INICJALIZACJA PINÓW PRZEKAŹNIKÓW
     // ================================================================
-    //
     // Ustawia wszystkie piny relay_on i relay_dir jako OUTPUT LOW
     // używając bezpośredniego dostępu do rejestrów AVR.
-    // Zapobiega niekontrolowanemu załączeniu przekaźników podczas restartu.
+    // Szybsze niż pinMode/digitalWrite - wykonuje się w kilka mikrosekund.
     //
-    // Bezpośredni dostęp do rejestrów jest SZYBSZY niż pinMode/digitalWrite
-    // i wykonuje się w kilka mikrosekund.
+    // PINY RELAY_ON:  19,17,15,23, 3, 5, 7, 9,11,27
+    // PINY RELAY_DIR: 18,16,14,22, 2, 4, 6, 8,10,26
     
-    // ========== PINY RELAY_ON: 19,17,15,23,3,5,7,9,11,13 ==========
-    // Pin 3 = PE5, Pin 5 = PE3, Pin 7 = PH4, Pin 9 = PH6
-    // Pin 11 = PB5, Pin 13 = PB7, Pin 15 = PJ0, Pin 17 = PH0
-    // Pin 19 = PD2, Pin 23 = PA1
+    // --- Port A: pin 23 (PA1), pin 27 (PA5) relay_on, pin 22 (PA0), pin 26 (PA4) relay_dir ---
+    PORTA &= ~((1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4));  // LOW najpierw!
+    DDRA |= (1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4);       // OUTPUT
     
-    // ========== PINY RELAY_DIR: 18,16,14,22,2,4,6,8,10,12 ==========
-    // Pin 2 = PE4, Pin 4 = PG5, Pin 6 = PH3, Pin 8 = PH5
-    // Pin 10 = PB4, Pin 12 = PB6, Pin 14 = PJ1, Pin 16 = PH1
-    // Pin 18 = PD3, Pin 22 = PA0
-    
-    // --- Port A: pin 23 (PA1) relay_on, pin 22 (PA0) relay_dir ---
-    PORTA &= ~((1 << PA1) | (1 << PA0));  // LOW najpierw!
-    DDRA |= (1 << PA1) | (1 << PA0);       // OUTPUT
-    
-    // --- Port B: piny 11 (PB5), 13 (PB7) relay_on, piny 10 (PB4), 12 (PB6) relay_dir ---
-    PORTB &= ~((1 << PB5) | (1 << PB7) | (1 << PB4) | (1 << PB6));
-    DDRB |= (1 << PB5) | (1 << PB7) | (1 << PB4) | (1 << PB6);
+    // --- Port B: pin 11 (PB5) relay_on, pin 10 (PB4) relay_dir ---
+    // Pin 12/13 (PB6/PB7) usunięte - bootloader używa pin 13!
+    PORTB &= ~((1 << PB5) | (1 << PB4));
+    DDRB |= (1 << PB5) | (1 << PB4);
     
     // --- Port D: pin 19 (PD2) relay_on, pin 18 (PD3) relay_dir ---
     PORTD &= ~((1 << PD2) | (1 << PD3));
@@ -67,25 +56,14 @@ void earlyPinSafeInit()
 
 void initRelays()
 {
-    // najpierw ustaw stan LOW zanim ustawimy pin jako OUTPUT
-    for(int i=0;i<CHANNEL_COUNT;i++)
+    // earlyPinSafeInit() już ustawiła piny jako OUTPUT LOW
+    // Tu tylko upewniamy się przez Arduino API
+    for(int i=0; i<CHANNEL_COUNT; i++)
     {
-        digitalWrite(relay_on[i],LOW);
-        digitalWrite(relay_dir[i],LOW);
-    }
-
-    // dopiero teraz ustaw OUTPUT
-    for(int i=0;i<CHANNEL_COUNT;i++)
-    {
-        pinMode(relay_on[i],OUTPUT);
-        pinMode(relay_dir[i],OUTPUT);
-    }
-
-    // dodatkowe zabezpieczenie
-    for(int i=0;i<CHANNEL_COUNT;i++)
-    {
-        digitalWrite(relay_on[i],LOW);
-        digitalWrite(relay_dir[i],LOW);
+        pinMode(relay_on[i], OUTPUT);
+        pinMode(relay_dir[i], OUTPUT);
+        digitalWrite(relay_on[i], LOW);
+        digitalWrite(relay_dir[i], LOW);
     }
 }
 

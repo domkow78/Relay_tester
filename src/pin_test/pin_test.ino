@@ -2,18 +2,22 @@
  * MINIMALNY TEST PINÓW - DIAGNOZA PROBLEMU BOOTLOADERA
  * =====================================================
  * 
- * Ten sketch ma na celu sprawdzenie, czy problem z pinami
- * występuje PRZED uruchomieniem setup() (bootloader)
- * czy PODCZAS inicjalizacji kodu.
+ * WYNIKI DOTYCHCZASOWE:
+ * - Pin 13 PULSUJE podczas hard reset -> BOOTLOADER używa go do LED!
+ * - Pin 12 NIE pulsuje -> bootloader go nie dotyka
+ * - Soft reset NIE wywołuje pulsowania -> omija bootloader
  * 
- * INSTRUKCJA TESTU:
- * 1. Wgraj ten sketch na Arduino Mega
- * 2. Obserwuj LED (pin 13) - miga co 500ms gdy kod działa
- * 3. Podłącz oscyloskop/multimetr do testowanych pinów
- * 4. Sprawdź czy piny są stabilne LOW od razu po RESET
+ * WNIOSEK: Bootloader Arduino Mega miga pin 13 (LED) podczas startu.
+ * To normalne zachowanie, ale PROBLEM dla przekaźnika na tym pinie!
  * 
- * PINY RELAY_ON:  19, 17, 15, 23, 3, 5, 7, 9, 11, 13
- * PINY RELAY_DIR: 18, 16, 14, 22, 2, 4, 6, 8, 10, 12
+ * ROZWIĄZANIA dla pin 13:
+ * 1. Przenieś przekaźnik z pin 13 na inny pin (ZALECANE)
+ * 2. Wypal bootloader bez migania LED (Optiboot)
+ * 3. Wgraj przez ISP bez bootloadera
+ * 4. Dodaj RC delay na wejściu przekaźnika (hardware fix)
+ * 
+ * PINY RELAY_ON:  19, 17, 15, 23, 3, 5, 7, 9, 11, 27 
+ * PINY RELAY_DIR: 18, 16, 14, 22, 2, 4, 6, 8, 10, 26
  */
 
 #include <avr/io.h>
@@ -27,13 +31,13 @@
 void earlyInit() __attribute__((naked, section(".init3")));
 void earlyInit()
 {
-    // Port A: pin 23 (PA1), pin 22 (PA0)
-    PORTA &= ~((1 << PA1) | (1 << PA0));
-    DDRA |= (1 << PA1) | (1 << PA0);
+    // Port A: pin 23 (PA1), pin 27 (PA5), pin 22 (PA0), pin 26 (PA4)
+    PORTA &= ~((1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4));
+    DDRA |= (1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4);
     
-    // Port B: piny 11 (PB5), 13 (PB7), 10 (PB4), 12 (PB6)
-    PORTB &= ~((1 << PB5) | (1 << PB7) | (1 << PB4) | (1 << PB6));
-    DDRB |= (1 << PB5) | (1 << PB7) | (1 << PB4) | (1 << PB6);
+    // Port B: pin 11 (PB5), 10 (PB4) - piny 12/13 usunięte!
+    PORTB &= ~((1 << PB5) | (1 << PB4));
+    DDRB |= (1 << PB5) | (1 << PB4);
     
     // Port D: pin 19 (PD2), pin 18 (PD3)
     PORTD &= ~((1 << PD2) | (1 << PD3));
@@ -60,8 +64,8 @@ void earlyInit()
 // STANDARDOWY KOD ARDUINO
 // =============================================================
 
-const uint8_t relay_on[]  = {19, 17, 15, 23, 3, 5, 7, 9, 11, 13};
-const uint8_t relay_dir[] = {18, 16, 14, 22, 2, 4, 6, 8, 10, 12};
+const uint8_t relay_on[]  = {19, 17, 15, 23, 3, 5, 7, 9, 11, 27};
+const uint8_t relay_dir[] = {18, 16, 14, 22, 2, 4, 6, 8, 10, 26};
 const uint8_t PIN_COUNT = 10;
 
 void setup() 
@@ -77,20 +81,21 @@ void setup()
     }
     
     Serial.println();
-    Serial.println(F("================================="));
-    Serial.println(F("   PIN TEST - BOOTLOADER DEBUG"));
-    Serial.println(F("================================="));
-    Serial.println(F("Jesli widzisz ten tekst, kod dziala."));
+    Serial.println(F("=========================================="));
+    Serial.println(F("   PIN TEST - BOOTLOADER DEBUG v2"));
+    Serial.println(F("=========================================="));
     Serial.println();
-    Serial.println(F("Test 1: Sprawdz piny oscyloskopem podczas RESET"));
-    Serial.println(F("Test 2: Obserwuj czy sa impulsy HIGH przed tym tekstem"));
+    Serial.println(F("!!! UWAGA: Pin 13 jest uzywany przez bootloader !!!"));
+    Serial.println(F("    Bootloader miga LED (pin 13) podczas startu."));
+    Serial.println(F("    To powoduje pulsowanie przekaznika na tym pinie!"));
     Serial.println();
     Serial.println(F("KOMENDY:"));
-    Serial.println(F("  'h' - ustaw wszystkie piny HIGH"));
-    Serial.println(F("  'l' - ustaw wszystkie piny LOW"));
-    Serial.println(F("  't' - toggle test (miganie)"));
+    Serial.println(F("  '1'-'9','0' - test pojedynczego pinu relay_on"));
+    Serial.println(F("  'h' - wszystkie HIGH"));
+    Serial.println(F("  'l' - wszystkie LOW"));
     Serial.println(F("  's' - pokaz stan pinow"));
-    Serial.println(F("  'r' - symuluj RESET (soft reset)"));
+    Serial.println(F("  'p' - test sekwencyjny (kazdy pin po kolei)"));
+    Serial.println(F("  'r' - soft reset"));
     Serial.println();
 }
 
@@ -143,6 +148,45 @@ void softReset()
     asm volatile ("jmp 0");
 }
 
+void testSinglePin(uint8_t index)
+{
+    if (index >= PIN_COUNT) return;
+    
+    Serial.print(F("Test pin "));
+    Serial.print(relay_on[index]);
+    Serial.println(F(" - pulse HIGH/LOW 3x"));
+    
+    for (int i = 0; i < 3; i++) {
+        digitalWrite(relay_on[index], HIGH);
+        delay(300);
+        digitalWrite(relay_on[index], LOW);
+        delay(300);
+    }
+    Serial.println(F("Done."));
+}
+
+void sequentialTest()
+{
+    Serial.println(F("\n=== TEST SEKWENCYJNY RELAY_ON ==="));
+    Serial.println(F("Kazdy pin HIGH na 1s, obserwuj oscyloskopem"));
+    Serial.println();
+    
+    for (uint8_t i = 0; i < PIN_COUNT; i++) {
+        Serial.print(F("Pin "));
+        Serial.print(relay_on[i]);
+        if (relay_on[i] == 13) Serial.print(F(" [BOOTLOADER LED!]"));
+        Serial.println(F(" -> HIGH"));
+        
+        digitalWrite(relay_on[i], HIGH);
+        delay(1000);
+        digitalWrite(relay_on[i], LOW);
+        delay(200);
+    }
+    
+    Serial.println(F("\n=== TEST ZAKOŃCZONY ==="));
+    Serial.println(F("Wszystkie piny LOW"));
+}
+
 void loop() 
 {
     // LED heartbeat - pin 13 (jest w relay_on, więc używamy osobnego pinu)
@@ -180,6 +224,20 @@ void loop()
             case 'R':
                 softReset();
                 break;
+            case 'p':
+            case 'P':
+                sequentialTest();
+                break;
+            case '1': testSinglePin(0); break;  // pin 19
+            case '2': testSinglePin(1); break;  // pin 17
+            case '3': testSinglePin(2); break;  // pin 15
+            case '4': testSinglePin(3); break;  // pin 23
+            case '5': testSinglePin(4); break;  // pin 3
+            case '6': testSinglePin(5); break;  // pin 5
+            case '7': testSinglePin(6); break;  // pin 7
+            case '8': testSinglePin(7); break;  // pin 9
+            case '9': testSinglePin(8); break;  // pin 11
+            case '0': testSinglePin(9); break;  // pin 13 (BOOTLOADER!)
         }
     }
 }

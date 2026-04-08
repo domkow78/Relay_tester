@@ -9,9 +9,8 @@ extern const uint8_t relay_on[CHANNEL_COUNT];
 extern const uint8_t relay_dir[CHANNEL_COUNT];
 extern bool relayState[CHANNEL_COUNT];
 
-// KRYTYCZNA FUNKCJA BEZPIECZEŃSTWA!
-// Musi być wywołana jako PIERWSZA instrukcja w setup()
-// Zapobiega niekontrolowanemu załączeniu przekaźników podczas restartu
+// Szybka inicjalizacja pinów przekaźników przez rejestry AVR
+// Wywołaj jako pierwszą instrukcję w setup()
 void earlyPinSafeInit();
 
 void initRelays();
