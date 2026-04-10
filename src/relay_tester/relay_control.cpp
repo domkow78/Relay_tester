@@ -2,12 +2,12 @@
 #include <avr/io.h>
 
 const uint8_t relay_on[CHANNEL_COUNT] =
-{19,17,15,23,3,5,7,9,11,27};
-// zamiana 1 -> 23, 13 -> 27 (bootloader używa pin 13 do LED)
+{19,17,15,23,3,5,7,9,11,30};
+// zamiana 1 -> 23, 13 -> 30 (bootloader używa pin 13 do LED)
 
 const uint8_t relay_dir[CHANNEL_COUNT] =
-{18,16,14,22,2,4,6,8,10,26};
-// zamiana 0 --> 22, 12 -> 26 (pin 12/13 - bootloader)
+{18,16,14,22,2,4,6,8,10,12};
+// zamiana 0 --> 22 (bootloader używa pin 0/1 do UART)
 
 bool relayState[CHANNEL_COUNT] = {0};
 
@@ -20,17 +20,20 @@ void earlyPinSafeInit()
     // używając bezpośredniego dostępu do rejestrów AVR.
     // Szybsze niż pinMode/digitalWrite - wykonuje się w kilka mikrosekund.
     //
-    // PINY RELAY_ON:  19,17,15,23, 3, 5, 7, 9,11,27
-    // PINY RELAY_DIR: 18,16,14,22, 2, 4, 6, 8,10,26
+    // PINY RELAY_ON:  19,17,15,23, 3, 5, 7, 9,11,30
+    // PINY RELAY_DIR: 18,16,14,22, 2, 4, 6, 8,10,12
     
-    // --- Port A: pin 23 (PA1), pin 27 (PA5) relay_on, pin 22 (PA0), pin 26 (PA4) relay_dir ---
-    PORTA &= ~((1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4));  // LOW najpierw!
-    DDRA |= (1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4);       // OUTPUT
+    // --- Port A: pin 23 (PA1) relay_on, pin 22 (PA0) relay_dir ---
+    PORTA &= ~((1 << PA1) | (1 << PA0));  // LOW najpierw!
+    DDRA |= (1 << PA1) | (1 << PA0);       // OUTPUT
     
-    // --- Port B: pin 11 (PB5) relay_on, pin 10 (PB4) relay_dir ---
-    // Pin 12/13 (PB6/PB7) usunięte - bootloader używa pin 13!
-    PORTB &= ~((1 << PB5) | (1 << PB4));
-    DDRB |= (1 << PB5) | (1 << PB4);
+    // --- Port C: pin 30 (PC7) relay_on ---
+    PORTC &= ~(1 << PC7);  // LOW najpierw!
+    DDRC |= (1 << PC7);     // OUTPUT
+    
+    // --- Port B: pin 11 (PB5) relay_on, pin 10 (PB4), pin 12 (PB6) relay_dir ---
+    PORTB &= ~((1 << PB5) | (1 << PB4) | (1 << PB6));
+    DDRB |= (1 << PB5) | (1 << PB4) | (1 << PB6);
     
     // --- Port D: pin 19 (PD2) relay_on, pin 18 (PD3) relay_dir ---
     PORTD &= ~((1 << PD2) | (1 << PD3));

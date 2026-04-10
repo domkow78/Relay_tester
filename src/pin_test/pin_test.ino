@@ -16,8 +16,8 @@
  * 3. Wgraj przez ISP bez bootloadera
  * 4. Dodaj RC delay na wejściu przekaźnika (hardware fix)
  * 
- * PINY RELAY_ON:  19, 17, 15, 23, 3, 5, 7, 9, 11, 27 
- * PINY RELAY_DIR: 18, 16, 14, 22, 2, 4, 6, 8, 10, 26
+ * PINY RELAY_ON:  19, 17, 15, 23, 3, 5, 7, 9, 11, 30 
+ * PINY RELAY_DIR: 18, 16, 14, 22, 2, 4, 6, 8, 10, 12
  */
 
 #include <avr/io.h>
@@ -31,13 +31,17 @@
 void earlyInit() __attribute__((naked, section(".init3")));
 void earlyInit()
 {
-    // Port A: pin 23 (PA1), pin 27 (PA5), pin 22 (PA0), pin 26 (PA4)
-    PORTA &= ~((1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4));
-    DDRA |= (1 << PA1) | (1 << PA5) | (1 << PA0) | (1 << PA4);
+    // Port A: pin 23 (PA1), pin 22 (PA0)
+    PORTA &= ~((1 << PA1) | (1 << PA0));
+    DDRA |= (1 << PA1) | (1 << PA0);
     
-    // Port B: pin 11 (PB5), 10 (PB4) - piny 12/13 usunięte!
-    PORTB &= ~((1 << PB5) | (1 << PB4));
-    DDRB |= (1 << PB5) | (1 << PB4);
+    // Port B: pin 11 (PB5), 10 (PB4), 12 (PB6)
+    PORTB &= ~((1 << PB5) | (1 << PB4) | (1 << PB6));
+    DDRB |= (1 << PB5) | (1 << PB4) | (1 << PB6);
+    
+    // Port C: pin 30 (PC7)
+    PORTC &= ~(1 << PC7);
+    DDRC |= (1 << PC7);
     
     // Port D: pin 19 (PD2), pin 18 (PD3)
     PORTD &= ~((1 << PD2) | (1 << PD3));
@@ -64,8 +68,8 @@ void earlyInit()
 // STANDARDOWY KOD ARDUINO
 // =============================================================
 
-const uint8_t relay_on[]  = {19, 17, 15, 23, 3, 5, 7, 9, 11, 27};
-const uint8_t relay_dir[] = {18, 16, 14, 22, 2, 4, 6, 8, 10, 26};
+const uint8_t relay_on[]  = {19, 17, 15, 23, 3, 5, 7, 9, 11, 30};
+const uint8_t relay_dir[] = {18, 16, 14, 22, 2, 4, 6, 8, 10, 12};
 const uint8_t PIN_COUNT = 10;
 
 void setup() 
@@ -237,7 +241,7 @@ void loop()
             case '7': testSinglePin(6); break;  // pin 7
             case '8': testSinglePin(7); break;  // pin 9
             case '9': testSinglePin(8); break;  // pin 11
-            case '0': testSinglePin(9); break;  // pin 13 (BOOTLOADER!)
+            case '0': testSinglePin(9); break;  // pin 30
         }
     }
 }

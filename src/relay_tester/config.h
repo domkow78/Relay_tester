@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define FW_VERSION "6.0"
+#define FW_VERSION "7.0"
 
 #define CHANNEL_COUNT 10
 
