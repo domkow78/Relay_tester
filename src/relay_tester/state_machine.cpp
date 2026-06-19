@@ -40,10 +40,9 @@ void initStateMachine()
     }
     else
     {
-        // Po restarcie NIE wznawiaj testu automatycznie!
-        // Użytkownik musi ręcznie wznowić komendą START.
-        // Zapobiega to niekontrolowanemu załączeniu przekaźników po power-cycle.
-        currentState = STATE_IDLE;
+        // Po restarcie automatycznie wznów test,
+        // jeśli nie osiągnięto jeszcze targetu i nie ma postoju na pomiar.
+        currentState = STATE_RUNNING;
     }
 }
 
