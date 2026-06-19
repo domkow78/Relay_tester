@@ -1,14 +1,14 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define FW_VERSION "7.0"
+#define FW_VERSION "8.0"
 
 #define CHANNEL_COUNT 10
 
 #define DEFAULT_STEP_DELAY 1000
 #define DEFAULT_TARGET_CYCLES 100000
 #define DEFAULT_MEASURE_INTERVAL 20000
-#define DEFAULT_SAVE_INTERVAL    100   // zapis stanu co 100 cykli (~10x rzadziej niż poprzednio)
+#define DEFAULT_SAVE_INTERVAL    50   // zapis stanu co 50 cykli (~10x rzadziej niż poprzednio)
 
 #define DEAD_TIME 100
 

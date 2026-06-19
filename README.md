@@ -118,7 +118,7 @@ Domyślne wartości:
 STEP_DELAY = 1000 ms
 TARGET_CYCLES = 100000
 MEASURE_INTERVAL = 20000
-SAVE_INTERVAL = 100
+SAVE_INTERVAL = 50
 
 Parametry można zmieniać przez UART.
 
@@ -179,9 +179,10 @@ Po włączeniu zasilania system:
 1. odczytuje EEPROM
 2. wybiera slot z najwyższym numerem sequence
 3. zwiększa licznik restartów
-4. wznawia test
+4. wznawia test (STATE_RUNNING)
 
-chyba że osiągnięto punkt pomiarowy.
+Jeśli zapisany stan wypada na punkt pomiarowy, system przechodzi do
+STATE_WAIT_MEASUREMENT i czeka na komendę START.
 
 ---
 
@@ -345,9 +346,9 @@ Zastosowany mechanizm: **ring buffer wear leveling** – każdy zapis trafia do 
 
 | Parametr | Wartość |
 |---|---|
-| Liczba slotów STATE | 213 |
-| Zapisów przed zużyciem | 213 × 100 000 = **21 300 000** |
-| SAVE_INTERVAL | 100 cykli |
+| Liczba slotów STATE | 271 |
+| Zapisów przed zużyciem | 271 × 100 000 = **27 100 000** |
+| SAVE_INTERVAL | 50 cykli |
 | RUNTIME_SAVE_INTERVAL | 300 s |
 
 Przy teście 500 000 cykli liczba zapisów wynosi ~5 800, co oznacza ponad **3 600 pełnych testów** przed zużyciem.
